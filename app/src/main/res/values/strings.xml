@@ -13,4 +13,6 @@
     <string name="password">Password</string>
     <string name="login">Login</string>
     <string name="cancel">Cancel</string>
+    <string name="album_name">Album Name</string>
+    <string name="create">Create</string>
 </resources>

@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
         signUp = (Button) findViewById(R.id.signup);
         login = (Button) findViewById(R.id.login);
-        createAlbum = (Button) findViewById(R.id.createAlbum);
+        createAlbum = (Button) findViewById(R.id.createAlbum_title);
         findUser = (Button) findViewById(R.id.findUser);
         addPhoto = (Button) findViewById(R.id.addPhoto);
         addUser = (Button) findViewById(R.id.addUser);
@@ -42,28 +42,19 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
         if(loggedIn) {
-            login.setText("Log Out");
             loggedInView();
         }
     }
 
     public void signUpOnClick(View v) {
-        if(loggedIn) {
-            loggedIn = false;
-            login.setText("Log In");
-
-        }
-        else {
-            Intent signUpIntent = new Intent(MainActivity.this, SignUpActivity.class);
-            startActivity(signUpIntent);
-        }
+        Intent signUpIntent = new Intent(MainActivity.this, SignUpActivity.class);
+        startActivity(signUpIntent);
     }
 
     public void logInMainOnClick(View v) {
 
         if(loggedIn) {
             loggedIn = false;
-            login.setText("Log In");
             loggedOutView();
         }
         else {
@@ -105,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loggedInView() {
+        login.setText("Log Out");
         signUp.setVisibility(View.GONE);
         createAlbum.setVisibility(View.VISIBLE);
         findUser.setVisibility(View.VISIBLE);
@@ -115,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loggedOutView() {
+        login.setText("Log In");
         signUp.setVisibility(View.VISIBLE);
         createAlbum.setVisibility(View.GONE);
         findUser.setVisibility(View.GONE);

@@ -32,7 +32,7 @@ public class SignUpActivity extends AppCompatActivity {
         finish();
     }
 
-    public void logInCancelOnClick(View v) {
+    public void signUpCancelOnClick(View v) {
 
         finish();
     }
