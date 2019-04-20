@@ -1,3 +1,16 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">P2Photo</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="log_in">Log in</string>
+    <string name="p2photo">P2Photo</string>
+    <string name="create_album">Create Album</string>
+    <string name="find_users">Find Users</string>
+    <string name="add_photos_to_albums">Add Photos to Albums</string>
+    <string name="add_users_to_albums">Add Users to Albums</string>
+    <string name="list_user_s_albums">List User\'s Albums</string>
+    <string name="view_albums">View Albums</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="cancel">Cancel</string>
 </resources>

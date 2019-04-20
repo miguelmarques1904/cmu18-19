@@ -8,7 +8,8 @@ import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static boolean loggedIn = false;
+    //TODO change to false. it's true for testing purposes.
+    public static boolean loggedIn = true;
 
     Button signUp;
     Button login;
