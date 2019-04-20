@@ -5,11 +5,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 public class SignInActivity extends AppCompatActivity {
 
     EditText usernameField;
     EditText passwordField;
+    TextView errorMessage;
+
     Button loginBtn;
     Button cancelBtn;
 
@@ -20,6 +23,7 @@ public class SignInActivity extends AppCompatActivity {
 
         usernameField = (EditText) findViewById(R.id.signin_username);
         passwordField = (EditText) findViewById(R.id.signin_password);
+        errorMessage = (TextView) findViewById(R.id.signin_errorText);
 
 
         loginBtn = (Button) findViewById(R.id.login_login);
@@ -35,6 +39,9 @@ public class SignInActivity extends AppCompatActivity {
         if(usernameField.getText().toString().equals("username") && passwordField.getText().toString().equals("password")) {
             MainActivity.loggedIn = true;
             finish();
+        }
+        else {
+            errorMessage.setText("Wrong Username or Password. Try again.");
         }
     }
 
