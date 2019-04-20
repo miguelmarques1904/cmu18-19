@@ -113,17 +113,17 @@
             android:onClick="addUserOnClick"
             android:text="@string/add_users_to_albums"
             android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/listUser"
+            app:layout_constraintBottom_toTopOf="@+id/listUserAlbum"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/addPhoto" />
 
         <Button
-            android:id="@+id/listUser"
+            android:id="@+id/listUserAlbum"
             android:layout_width="303dp"
             android:layout_height="52dp"
-            android:onClick="listUserOnClick"
+            android:onClick="listUserAlbumOnClick"
             android:text="@string/list_user_s_albums"
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/viewAlbum"
@@ -143,7 +143,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/listUser" />
+            app:layout_constraintTop_toBottomOf="@+id/listUserAlbum" />
 
     </android.support.constraint.ConstraintLayout>
 

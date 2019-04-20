@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         findUser = (Button) findViewById(R.id.findUser);
         addPhoto = (Button) findViewById(R.id.addPhoto);
         addUser = (Button) findViewById(R.id.addUser);
-        listUser = (Button) findViewById(R.id.listUser);
+        listUser = (Button) findViewById(R.id.listUserAlbum);
         viewAlbum = (Button) findViewById(R.id.viewAlbum);
 
 
@@ -85,9 +85,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void listUserOnClick(View v) {
-        Intent listUserIntent = new Intent(MainActivity.this, ListUserActivity.class);
-        startActivity(listUserIntent);
+    public void listUserAlbumOnClick(View v) {
+        Intent listUserAlbumIntent = new Intent(MainActivity.this, ListUserAlbumActivity.class);
+        startActivity(listUserAlbumIntent);
     }
 
     public void viewAlbumOnClick(View v) {

@@ -5,11 +5,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 public class SignUpActivity extends AppCompatActivity {
 
     EditText usernameField;
     EditText passwordField;
+    TextView errorMessage;
+
     Button signUp;
     Button cancel;
 
@@ -20,6 +23,7 @@ public class SignUpActivity extends AppCompatActivity {
 
         usernameField = (EditText) findViewById(R.id.signup_username);
         passwordField = (EditText) findViewById(R.id.signup_password);
+        errorMessage = (TextView) findViewById(R.id.signup_errorText);
 
         signUp = (Button) findViewById(R.id.signup_signup);
         cancel = (Button) findViewById(R.id.signup_cancel);
@@ -29,7 +33,13 @@ public class SignUpActivity extends AppCompatActivity {
     // Dialog_signin login button
     public void signUpOnClick(View v) {
 
-        finish();
+        // TODO server-side logic for username availability
+        if(!usernameField.getText().toString().isEmpty() && !passwordField.getText().toString().isEmpty() && !usernameField.getText().toString().equals("username")) {
+            finish();
+        }
+        else {
+            errorMessage.setText("Username already exists or invalid password. Try again.");
+        }
     }
 
     public void signUpCancelOnClick(View v) {
