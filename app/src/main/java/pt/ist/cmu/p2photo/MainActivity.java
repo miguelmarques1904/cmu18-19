@@ -7,51 +7,69 @@ import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
 
+    boolean loggedIn = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
     }
 
-    public void signUpButtonOnClick(View v) {
+    public void signUpOnClick(View v) {
         Button button=(Button) v;
         button.setText("top");
     }
 
-    public void logInButtonOnClick(View v) {
+    public void logInOnClick(View v) {
         Button button=(Button) v;
-        button.setText("top");
+        if(loggedIn) {
+            button.setText("Log In");
+        }
+        else {
+            button.setText("Log Out");
+            setContentView(R.layout.dialog_signin);
+        }
+
+        //loggedIn = !loggedIn; do this in the dialog layout button click if checks credentials
+
+        setContentView(R.layout.dialog_signin);
     }
 
-    public void createAlbumButtonOnClick(View v) {
-        Button button=(Button) v;
-        button.setText("top");
+    public void createAlbumOnClick(View v) {
+        if(loggedIn) {
+
+        }
     }
 
-    public void findUserButtonOnClick(View v) {
-        Button button=(Button) v;
-        button.setText("top");
+    public void findUserOnClick(View v) {
+        if(loggedIn) {
+
+        }
     }
 
-    public void addPhotoButtonOnClick(View v) {
-        Button button=(Button) v;
-        button.setText("top");
+    public void addPhotoOnClick(View v) {
+        if(loggedIn) {
+
+        }
     }
 
-    public void addUserButtonOnClick(View v) {
-        Button button=(Button) v;
-        button.setText("top");
+    public void addUserOnClick(View v) {
+        if(loggedIn) {
+
+        }
     }
 
 
-    public void listUserButtonOnClick(View v) {
-        Button button=(Button) v;
-        button.setText("top");
+    public void listUserOnClick(View v) {
+        if(loggedIn) {
+
+        }
     }
 
-    public void viewAlbumButtonOnClick(View v) {
-        Button button=(Button) v;
-        button.setText("top");
+    public void viewAlbumOnClick(View v) {
+        if(loggedIn) {
+
+        }
     }
 
 }
