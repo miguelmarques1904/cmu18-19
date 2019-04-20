@@ -26,6 +26,36 @@
             android:label="@string/app_name"
             android:parentActivityName=".MainActivity" >
         </activity>
+        <activity
+            android:name=".AddPhotoActivity"
+            android:label="@string/app_name"
+            android:parentActivityName=".MainActivity" >
+        </activity>
+        <activity
+            android:name=".AddUserActivity"
+            android:label="@string/app_name"
+            android:parentActivityName=".MainActivity" >
+        </activity>
+        <activity
+            android:name=".CreateAlbumActivity"
+            android:label="@string/app_name"
+            android:parentActivityName=".MainActivity" >
+        </activity>
+        <activity
+            android:name=".FindUserActivity"
+            android:label="@string/app_name"
+            android:parentActivityName=".MainActivity" >
+        </activity>
+        <activity
+            android:name=".ListUserActivity"
+            android:label="@string/app_name"
+            android:parentActivityName=".MainActivity" >
+        </activity>
+        <activity
+            android:name=".ViewAlbumActivity"
+            android:label="@string/app_name"
+            android:parentActivityName=".MainActivity" >
+        </activity>
     </application>
 
 </manifest>

@@ -74,40 +74,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void createAlbumOnClick(View v) {
-        if(loggedIn) {
-
-        }
+        Intent createAlbumIntent = new Intent(MainActivity.this, CreateAlbumActivity.class);
+        startActivity(createAlbumIntent);
     }
 
     public void findUserOnClick(View v) {
-        if(loggedIn) {
-
-        }
+        Intent findUserIntent = new Intent(MainActivity.this, FindUserActivity.class);
+        startActivity(findUserIntent);
     }
 
     public void addPhotoOnClick(View v) {
-        if(loggedIn) {
-
-        }
+        Intent addPhotoIntent = new Intent(MainActivity.this, AddPhotoActivity.class);
+        startActivity(addPhotoIntent);
     }
 
     public void addUserOnClick(View v) {
-        if(loggedIn) {
-
-        }
+        Intent addUserIntent = new Intent(MainActivity.this, AddUserActivity.class);
+        startActivity(addUserIntent);
     }
 
 
     public void listUserOnClick(View v) {
-        if(loggedIn) {
-
-        }
+        Intent listUserIntent = new Intent(MainActivity.this, ListUserActivity.class);
+        startActivity(listUserIntent);
     }
 
     public void viewAlbumOnClick(View v) {
-        if(loggedIn) {
-
-        }
+        Intent viewAlbumIntent = new Intent(MainActivity.this, ViewAlbumActivity.class);
+        startActivity(viewAlbumIntent);
     }
 
     public void loggedInView() {
