@@ -2,116 +2,149 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/p2photo"
-        android:layout_width="wrap_content"
-        android:layout_height="16dp"
-        android:text="P2Photo"
-        app:layout_constraintBottom_toTopOf="@+id/signup"
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/constraintLayout4"
+        android:layout_width="371dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="31dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <Button
-        android:id="@+id/signup"
-        android:layout_width="296dp"
-        android:layout_height="46dp"
-        android:onClick="signUpOnClick"
-        android:text="Sign Up"
-        app:layout_constraintBottom_toTopOf="@+id/login"
+        <TextView
+            android:id="@+id/p2photo"
+            android:layout_width="101dp"
+            android:layout_height="36dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:text="P2Photo"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/constraintLayout3"
+        android:layout_width="321dp"
+        android:layout_height="455dp"
+        android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/p2photo" />
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout4">
 
-    <Button
-        android:id="@+id/login"
-        android:layout_width="296dp"
-        android:layout_height="46dp"
-        android:onClick="logInOnClick"
-        android:text="Log in"
-        app:layout_constraintBottom_toTopOf="@+id/createAlbum"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signup" />
+        <Button
+            android:id="@+id/signup"
+            android:layout_width="303dp"
+            android:layout_height="52dp"
+            android:onClick="signUpOnClick"
+            android:text="Sign Up"
+            app:layout_constraintBottom_toTopOf="@+id/login"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/createAlbum"
-        android:layout_width="296dp"
-        android:layout_height="46dp"
-        android:onClick="createAlbumOnClick"
-        android:text="Create Album"
-        app:layout_constraintBottom_toTopOf="@+id/findUser"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login" />
+        <Button
+            android:id="@+id/login"
+            android:layout_width="303dp"
+            android:layout_height="52dp"
+            android:onClick="logInMainOnClick"
+            android:text="Log in"
+            app:layout_constraintBottom_toTopOf="@+id/createAlbum"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/signup" />
 
-    <Button
-        android:id="@+id/findUser"
-        android:layout_width="296dp"
-        android:layout_height="46dp"
-        android:onClick="findUserOnClick"
-        android:text="Find Users"
-        app:layout_constraintBottom_toTopOf="@+id/addPhoto"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/createAlbum" />
+        <Button
+            android:id="@+id/createAlbum"
+            android:layout_width="303dp"
+            android:layout_height="52dp"
+            android:onClick="createAlbumOnClick"
+            android:text="Create Album"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/findUser"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/login" />
 
-    <Button
-        android:id="@+id/addPhoto"
-        android:layout_width="296dp"
-        android:layout_height="46dp"
-        android:onClick="addPhotoOnClick"
-        android:text="Add Photos to Albums"
-        app:layout_constraintBottom_toTopOf="@+id/addUser"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/findUser" />
+        <Button
+            android:id="@+id/findUser"
+            android:layout_width="303dp"
+            android:layout_height="52dp"
+            android:onClick="findUserOnClick"
+            android:text="Find Users"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/addPhoto"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/createAlbum" />
 
+        <Button
+            android:id="@+id/addPhoto"
+            android:layout_width="303dp"
+            android:layout_height="52dp"
+            android:onClick="addPhotoOnClick"
+            android:text="Add Photos to Albums"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/addUser"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/findUser" />
 
-    <Button
-        android:id="@+id/addUser"
-        android:layout_width="296dp"
-        android:layout_height="46dp"
-        android:onClick="addUserOnClick"
-        android:text="Add Users to Albums"
-        app:layout_constraintBottom_toTopOf="@+id/listUser"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/addPhoto" />
+        <Button
+            android:id="@+id/addUser"
+            android:layout_width="303dp"
+            android:layout_height="52dp"
+            android:onClick="addUserOnClick"
+            android:text="Add Users to Albums"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/listUser"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/addPhoto" />
 
-    <Button
-        android:id="@+id/listUser"
-        android:layout_width="296dp"
-        android:layout_height="46dp"
-        android:onClick="listUserOnClick"
-        android:text="List User's Albums"
-        app:layout_constraintBottom_toTopOf="@+id/viewAlbum"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/addUser" />
+        <Button
+            android:id="@+id/listUser"
+            android:layout_width="303dp"
+            android:layout_height="52dp"
+            android:onClick="listUserOnClick"
+            android:text="List User's Albums"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/viewAlbum"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/addUser" />
 
-    <Button
-        android:id="@+id/viewAlbum"
-        android:layout_width="296dp"
-        android:layout_height="46dp"
-        android:onClick="viewAlbumOnClick"
-        android:text="View Albums"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/listUser" />
+        <Button
+            android:id="@+id/viewAlbum"
+            android:layout_width="303dp"
+            android:layout_height="52dp"
+            android:onClick="viewAlbumOnClick"
+            android:text="View Albums"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/listUser" />
+
+    </android.support.constraint.ConstraintLayout>
 
 </android.support.constraint.ConstraintLayout>
