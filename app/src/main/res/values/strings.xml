@@ -15,4 +15,9 @@
     <string name="album_name">Album Name</string>
     <string name="create">Create</string>
     <string name="find">Find</string>
+    <string name="back">Back</string>
+    <string name="your_albums">Your Albums</string>
+    <string name="add_users">Add/List Users</string>
+    <string name="add_photos">Add Photos</string>
+    <string name="placeholder">placeholder</string>
 </resources>
