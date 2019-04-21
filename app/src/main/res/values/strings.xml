@@ -7,8 +7,7 @@
     <string name="find_users">Find Users</string>
     <string name="add_photos_to_albums">Add Photos to Albums</string>
     <string name="add_users_to_albums">Add Users to Albums</string>
-    <string name="list_user_s_albums">List User\'s Albums</string>
-    <string name="view_albums">View Albums</string>
+    <string name="view_albums">View Your Albums</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="login">Login</string>

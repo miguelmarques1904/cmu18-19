@@ -14,10 +14,6 @@ public class MainActivity extends AppCompatActivity {
     Button signUp;
     Button login;
     Button createAlbum;
-    Button findUser;
-    Button addPhoto;
-    Button addUser;
-    Button listUser;
     Button viewAlbum;
 
     @Override
@@ -25,14 +21,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        signUp = (Button) findViewById(R.id.signup);
-        login = (Button) findViewById(R.id.login);
-        createAlbum = (Button) findViewById(R.id.createAlbum_title);
-        findUser = (Button) findViewById(R.id.findUser);
-        addPhoto = (Button) findViewById(R.id.addPhoto);
-        addUser = (Button) findViewById(R.id.addUser);
-        listUser = (Button) findViewById(R.id.listUserAlbum);
-        viewAlbum = (Button) findViewById(R.id.viewAlbum);
+        signUp = (Button) findViewById(R.id.main_signup);
+        login = (Button) findViewById(R.id.main_login);
+        createAlbum = (Button) findViewById(R.id.main_createAlbum);
+        viewAlbum = (Button) findViewById(R.id.main_viewAlbum);
 
 
     }
@@ -69,26 +61,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(createAlbumIntent);
     }
 
-    public void findUserOnClick(View v) {
-        Intent findUserIntent = new Intent(MainActivity.this, FindUserActivity.class);
-        startActivity(findUserIntent);
-    }
-
-    public void addPhotoOnClick(View v) {
-        Intent addPhotoIntent = new Intent(MainActivity.this, AddPhotoActivity.class);
-        startActivity(addPhotoIntent);
-    }
-
-    public void addUserOnClick(View v) {
-        Intent addUserIntent = new Intent(MainActivity.this, AddUserActivity.class);
-        startActivity(addUserIntent);
-    }
-
-
-    public void listUserAlbumOnClick(View v) {
-        Intent listUserAlbumIntent = new Intent(MainActivity.this, ListUserAlbumActivity.class);
-        startActivity(listUserAlbumIntent);
-    }
 
     public void viewAlbumOnClick(View v) {
         Intent viewAlbumIntent = new Intent(MainActivity.this, ViewAlbumActivity.class);
@@ -99,10 +71,6 @@ public class MainActivity extends AppCompatActivity {
         login.setText("Log Out");
         signUp.setVisibility(View.GONE);
         createAlbum.setVisibility(View.VISIBLE);
-        findUser.setVisibility(View.VISIBLE);
-        addPhoto.setVisibility(View.VISIBLE);
-        addUser.setVisibility(View.VISIBLE);
-        listUser.setVisibility(View.VISIBLE);
         viewAlbum.setVisibility(View.VISIBLE);
     }
 
@@ -110,10 +78,6 @@ public class MainActivity extends AppCompatActivity {
         login.setText("Log In");
         signUp.setVisibility(View.VISIBLE);
         createAlbum.setVisibility(View.GONE);
-        findUser.setVisibility(View.GONE);
-        addPhoto.setVisibility(View.GONE);
-        addUser.setVisibility(View.GONE);
-        listUser.setVisibility(View.GONE);
         viewAlbum.setVisibility(View.GONE);
     }
 

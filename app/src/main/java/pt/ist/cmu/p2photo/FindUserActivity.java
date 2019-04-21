@@ -5,7 +5,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
@@ -29,8 +28,8 @@ public class FindUserActivity extends AppCompatActivity {
         userListLayout = (LinearLayout) findViewById(R.id.finduser_vertical_layout);
 
 
-        findBtn = (Button) findViewById(R.id.finduser_find);
-        cancelBtn = (Button) findViewById(R.id.finduser_cancel);
+        findBtn = (Button) findViewById(R.id.adduser_add);
+        cancelBtn = (Button) findViewById(R.id.adduser_cancel);
 
         // TODO request userlist
         // temporary implementation

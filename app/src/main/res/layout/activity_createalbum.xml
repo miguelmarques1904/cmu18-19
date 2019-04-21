@@ -7,23 +7,20 @@
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/constraintLayout6"
-        android:layout_width="384dp"
+        android:layout_width="0dp"
         android:layout_height="248dp"
         android:layout_marginStart="13dp"
         android:layout_marginLeft="13dp"
-        android:layout_marginTop="27dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="13dp"
         android:layout_marginRight="13dp"
-        android:layout_marginBottom="350dp"
-        app:layout_constraintBottom_toTopOf="@+id/constraintLayout7"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.008">
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/createAlbum_title"
+            android:id="@+id/createalbum_title"
             android:layout_width="227dp"
             android:layout_height="43dp"
             android:layout_marginTop="24dp"
@@ -51,13 +48,46 @@
     </android.support.constraint.ConstraintLayout>
 
     <android.support.constraint.ConstraintLayout
-        android:id="@+id/constraintLayout7"
-        android:layout_width="411dp"
-        android:layout_height="80dp"
-        android:layout_marginBottom="26dp"
+        android:id="@+id/errorConstraint"
+        android:layout_width="0dp"
+        android:layout_height="262dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/constraintLayout6">
+
+        <TextView
+            android:id="@+id/createalbum_errorText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="8dp"
+            android:textColor="#90FF0000"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            tools:layout_margin="40dp" />
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/createalbumbt_constraintLayout"
+        android:layout_width="0dp"
+        android:layout_height="68dp"
+        android:layout_marginBottom="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/errorConstraint"
+        app:layout_constraintVertical_bias="0.943">
 
         <Button
             android:id="@+id/createalbum_create"
@@ -65,8 +95,8 @@
             android:layout_height="0dp"
             android:layout_marginStart="4dp"
             android:layout_marginLeft="4dp"
-            android:layout_marginEnd="4dp"
-            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
             android:onClick="CreateOnClick"
             android:text="@string/create"
             android:visibility="visible"
@@ -80,8 +110,10 @@
             android:id="@+id/createalbum_cancel"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_marginTop="4dp"
             android:layout_marginEnd="4dp"
             android:layout_marginRight="4dp"
+            android:layout_marginBottom="4dp"
             android:onClick="CreateAlbumCancelOnClick"
             android:text="@string/cancel"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -89,38 +121,6 @@
             app:layout_constraintStart_toEndOf="@+id/createalbum_create"
             app:layout_constraintTop_toTopOf="parent"
             tools:layout_constraintHorizontal_bias="0.5" />
-    </android.support.constraint.ConstraintLayout>
-
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/errorConstraint"
-        android:layout_width="395dp"
-        android:layout_height="262dp"
-        android:layout_marginBottom="56dp"
-        app:layout_constraintBottom_toTopOf="@id/constraintLayout7"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/constraintLayout6"
-        app:layout_constraintVertical_bias="0.33">
-
-        <TextView
-            android:id="@+id/signin_errorText"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="16dp"
-            android:textColor="#90FF0000"
-            android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0"
-            tools:layout_margin="40dp" />
     </android.support.constraint.ConstraintLayout>
 
 </android.support.constraint.ConstraintLayout>

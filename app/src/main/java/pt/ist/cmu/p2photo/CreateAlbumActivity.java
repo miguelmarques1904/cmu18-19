@@ -23,7 +23,7 @@ public class CreateAlbumActivity extends AppCompatActivity {
 
         albumNameField = (EditText) findViewById(R.id.createalbum_albumName);
 
-        errorMessage = (TextView) findViewById(R.id.signin_errorText);
+        errorMessage = (TextView) findViewById(R.id.createalbum_errorText);
 
         createBtn = (Button) findViewById(R.id.createalbum_create);
         cancelBtn = (Button) findViewById(R.id.createalbum_cancel);

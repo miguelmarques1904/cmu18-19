@@ -8,20 +8,17 @@
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/constraintLayout"
-        android:layout_width="394dp"
+        android:layout_width="0dp"
         android:layout_height="267dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="26dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.037">
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/signup_title"
@@ -73,11 +70,9 @@
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/errorConstraint"
-        android:layout_width="395dp"
+        android:layout_width="0dp"
         android:layout_height="262dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/signupbt_constraintLayout"
+        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -86,13 +81,13 @@
         <TextView
             android:id="@+id/signup_errorText"
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="8dp"
             android:textColor="#90FF0000"
             android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -108,12 +103,13 @@
         android:id="@+id/signupbt_constraintLayout"
         android:layout_width="0dp"
         android:layout_height="68dp"
-        android:layout_marginTop="575dp"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/errorConstraint"
+        app:layout_constraintVertical_bias="1.0">
 
         <Button
             android:id="@+id/signup_signup"
