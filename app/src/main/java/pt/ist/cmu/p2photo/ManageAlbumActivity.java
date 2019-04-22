@@ -88,6 +88,8 @@ public class ManageAlbumActivity extends AppCompatActivity {
             iv.setAdjustViewBounds(true);
             iv.setLayoutParams(imageParams);
 
+
+            // Add photo to column with the smallest height
             double minColHeight = Math.min(Math.min(col1Height,col2Height),col3Height);
             if(minColHeight == col1Height) {
                 col1.addView(iv);
