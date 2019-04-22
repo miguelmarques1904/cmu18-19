@@ -25,7 +25,7 @@ import java.util.List;
 public class ManageAlbumActivity extends AppCompatActivity {
 
     static int GET_FROM_GALLERY = 1; // ID of the activity started, used to process the result on the onActivityResult() function
-    static int nPhotos = 0;
+    int nPhotos = 0;
 
     String albumName;
 
@@ -35,8 +35,7 @@ public class ManageAlbumActivity extends AppCompatActivity {
     LinearLayout col2;
     LinearLayout col3;
 
-    // TODO make this persistent
-    List<Bitmap> photoList = new ArrayList<>();
+    static List<Bitmap> photoList = new ArrayList<>();
     LinearLayout.LayoutParams imageParams;
 
     Button addPhotoBtn;
