@@ -31,6 +31,10 @@ public class ManageAlbumActivity extends AppCompatActivity {
 
     TextView title;
 
+    static double col1Height;
+    static double col2Height;
+    static double col3Height;
+
     LinearLayout col1;
     LinearLayout col2;
     LinearLayout col3;
@@ -59,7 +63,9 @@ public class ManageAlbumActivity extends AppCompatActivity {
         col2 = (LinearLayout) findViewById(R.id.managealbum_ll2);
         col3 = (LinearLayout) findViewById(R.id.managealbum_ll3);
 
-
+        col1Height = 0;
+        col2Height = 0;
+        col3Height = 0;
 
         imageParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         imageParams.setMargins(0,0,0,20);
@@ -68,25 +74,34 @@ public class ManageAlbumActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+
         super.onResume();
 
         for(;nPhotos < photoList.size(); nPhotos++) {
+            Bitmap b = photoList.get(nPhotos);
+
+            // This works because column widths are equal
+            double imageRatio = (double) b.getHeight()/b.getWidth();
+
             ImageView iv = new ImageView(this);
-            iv.setImageBitmap(photoList.get(nPhotos)); // Change this to photoList elements
+            iv.setImageBitmap(b); // Change this to photoList elements
             iv.setAdjustViewBounds(true);
             iv.setLayoutParams(imageParams);
 
-            switch(nPhotos%3) {
-                case 0:
-                    col1.addView(iv);
-                    break;
-                case 1:
-                    col2.addView(iv);
-                    break;
-                case 2:
-                    col3.addView(iv);
-                    break;
+            double minColHeight = Math.min(Math.min(col1Height,col2Height),col3Height);
+            if(minColHeight == col1Height) {
+                col1.addView(iv);
+                col1Height+= imageRatio;
             }
+            else if(minColHeight == col2Height) {
+                col2.addView(iv);
+                col2Height+= imageRatio;
+            }
+            else {
+                col3.addView(iv);
+                col3Height+= imageRatio;
+            }
+
         }
 
 
