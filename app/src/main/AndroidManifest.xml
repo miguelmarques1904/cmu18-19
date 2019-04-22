@@ -42,11 +42,6 @@
             android:parentActivityName=".ViewAlbumActivity" >
         </activity>
         <activity
-            android:name=".AddPhotoActivity"
-            android:label="@string/app_name"
-            android:parentActivityName=".ManageAlbumActivity" >
-        </activity>
-        <activity
             android:name=".AddUserActivity"
             android:label="@string/app_name"
             android:parentActivityName=".ManageAlbumActivity" >

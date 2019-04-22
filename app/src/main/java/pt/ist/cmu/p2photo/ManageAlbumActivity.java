@@ -1,7 +1,11 @@
 package pt.ist.cmu.p2photo;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -13,10 +17,15 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ManageAlbumActivity extends AppCompatActivity {
+
+    static int GET_FROM_GALLERY = 1; // ID of the activity started, used to process the result on the onActivityResult() function
+    static int nPhotos = 0;
 
     String albumName;
 
@@ -26,7 +35,9 @@ public class ManageAlbumActivity extends AppCompatActivity {
     LinearLayout col2;
     LinearLayout col3;
 
-    List<String> photoList = new ArrayList<>();
+    // TODO make this persistent
+    List<Bitmap> photoList = new ArrayList<>();
+    LinearLayout.LayoutParams imageParams;
 
     Button addPhotoBtn;
     Button addUserBtn;
@@ -50,23 +61,23 @@ public class ManageAlbumActivity extends AppCompatActivity {
         col3 = (LinearLayout) findViewById(R.id.managealbum_ll3);
 
 
-        // TODO populate image list. maybe contains urls
-        for(int i=0; i<20; i++) {
-            photoList.add("placeholder");
-        }
 
-        int nPhotos = photoList.size();
-
-        LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        imageParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         imageParams.setMargins(0,0,0,20);
 
-        for(int i=0; i < nPhotos; i++) {
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        for(;nPhotos < photoList.size(); nPhotos++) {
             ImageView iv = new ImageView(this);
-            iv.setImageResource(R.drawable.profile); // Change this to photoList elements
+            iv.setImageBitmap(photoList.get(nPhotos)); // Change this to photoList elements
             iv.setAdjustViewBounds(true);
             iv.setLayoutParams(imageParams);
 
-            switch(i%3) {
+            switch(nPhotos%3) {
                 case 0:
                     col1.addView(iv);
                     break;
@@ -80,15 +91,33 @@ public class ManageAlbumActivity extends AppCompatActivity {
         }
 
 
-
-
     }
 
 
     public void addPhotoClick(View v) {
-        Intent addPhotoIntent = new Intent(ManageAlbumActivity.this, AddPhotoActivity.class);
-        addPhotoIntent.putExtra("albumName", albumName);
-        startActivity(addPhotoIntent);
+        startActivityForResult(new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI), GET_FROM_GALLERY);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+
+        //Detects request codes
+        if(requestCode == GET_FROM_GALLERY && resultCode == Activity.RESULT_OK) {
+            Uri selectedImage = data.getData();
+            Bitmap bitmap = null;
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+                photoList.add(bitmap);
+            } catch (FileNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
     }
 
     public void addUserClick(View v) {
