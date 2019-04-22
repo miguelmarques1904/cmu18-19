@@ -53,7 +53,6 @@ public class ViewAlbumActivity extends AppCompatActivity {
     }
 
     public void backOnClick(View v) {
-
         finish();
     }
 }

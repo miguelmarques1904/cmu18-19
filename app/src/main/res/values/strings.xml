@@ -20,4 +20,7 @@
     <string name="add_users">Add/List Users</string>
     <string name="add_photos">Add Photos</string>
     <string name="placeholder">placeholder</string>
+    <string name="add">Add</string>
+    <string name="can_add">Users You Can Add To Album:</string>
+    <string name="cant_add">Users That You Share Ownership With:</string>
 </resources>

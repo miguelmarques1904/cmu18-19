@@ -1,8 +1,10 @@
 package pt.ist.cmu.p2photo;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -25,7 +27,9 @@ public class AddUserActivity extends AppCompatActivity {
     Button cancelBtn;
 
     //Temporary Userlist
-    List<String> userList = new ArrayList<String>();
+    List<String> userList = new ArrayList<>();
+
+    List<CheckBox> checkboxList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,22 +54,35 @@ public class AddUserActivity extends AppCompatActivity {
         }
 
         for(int i = 0; i < userList.size(); i++) {
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            params.setMargins(16,0,16,16);
             // TODO if user already in ownership. if it is add to useradd_cantaddll as a textview
             if(i%2==0) { // replace by ownership function call
                 TextView tv = new TextView(getApplicationContext());
                 tv.setText(userList.get(i));
+                tv.setLayoutParams(params);
+                tv.setTextSize(16);
+                tv.setTextColor(Color.parseColor("#000000"));
                 userOwnListLayout.addView(tv);
             }
             else {
                 CheckBox cb = new CheckBox(getApplicationContext());
                 cb.setText(userList.get(i));
+                cb.setTextSize(16);
                 userAddListLayout.addView(cb);
+                checkboxList.add(cb);
+
             }
         }
 
     }
 
     public void addUserClick(View v) {
+        for (CheckBox cb: checkboxList) {
+            if(cb.isChecked()) {
+                // TODO Add cb.getText() user to album
+            }
+        }
         finish();
     }
 
