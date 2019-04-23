@@ -39,6 +39,7 @@ public class ManageAlbumActivity extends AppCompatActivity {
     LinearLayout col2;
     LinearLayout col3;
 
+    // TODO right now as it is static it is shared with all the albums
     static List<Bitmap> photoList = new ArrayList<>();
     LinearLayout.LayoutParams imageParams;
 
