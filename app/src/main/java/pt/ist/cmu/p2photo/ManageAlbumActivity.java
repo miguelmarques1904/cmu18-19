@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.ist.cmu.helpers.ImageHelper;
+
 public class ManageAlbumActivity extends AppCompatActivity {
 
     static int GET_FROM_GALLERY = 1; // ID of the activity started, used to process the result on the onActivityResult() function
@@ -40,7 +42,7 @@ public class ManageAlbumActivity extends AppCompatActivity {
     LinearLayout col3;
 
     // TODO right now as it is static it is shared with all the albums
-    static List<Bitmap> photoList = new ArrayList<>();
+    static List<Uri> photoList = new ArrayList<>();
     LinearLayout.LayoutParams imageParams;
 
     Button addPhotoBtn;
@@ -79,30 +81,44 @@ public class ManageAlbumActivity extends AppCompatActivity {
         super.onResume();
 
         for(;nPhotos < photoList.size(); nPhotos++) {
-            Bitmap b = photoList.get(nPhotos);
-
-            // This works because column widths are equal
-            double imageRatio = (double) b.getHeight()/b.getWidth();
-
-            ImageView iv = new ImageView(this);
-            iv.setImageBitmap(b); // Change this to photoList elements
-            iv.setAdjustViewBounds(true);
-            iv.setLayoutParams(imageParams);
+            final Uri uri = photoList.get(nPhotos);
 
 
-            // Add photo to column with the smallest height
-            double minColHeight = Math.min(Math.min(col1Height,col2Height),col3Height);
-            if(minColHeight == col1Height) {
-                col1.addView(iv);
-                col1Height+= imageRatio;
-            }
-            else if(minColHeight == col2Height) {
-                col2.addView(iv);
-                col2Height+= imageRatio;
-            }
-            else {
-                col3.addView(iv);
-                col3Height+= imageRatio;
+            Bitmap b = ImageHelper.getBitmapFromURI(uri, this.getContentResolver());
+
+            if(b != null) {
+                // This works because column widths are equal
+                double imageRatio = (double) b.getHeight() / b.getWidth();
+
+                ImageView iv = new ImageView(this);
+                iv.setImageBitmap(b); // Change this to photoList elements
+                iv.setAdjustViewBounds(true);
+                iv.setLayoutParams(imageParams);
+
+                iv.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        Intent viewPhotoIntent = new Intent(ManageAlbumActivity.this, ViewPhotoActivity.class);
+                        viewPhotoIntent.putExtra("photoURI", uri.toString());
+                        startActivity(viewPhotoIntent);
+                    }
+                });
+
+
+                // Add photo to column with the smallest height
+                double minColHeight = Math.min(Math.min(col1Height,col2Height),col3Height);
+                if(minColHeight == col1Height) {
+                    col1.addView(iv);
+                    col1Height+= imageRatio;
+                }
+                else if(minColHeight == col2Height) {
+                    col2.addView(iv);
+                    col2Height+= imageRatio;
+                }
+                else {
+                    col3.addView(iv);
+                    col3Height+= imageRatio;
+                }
+
             }
 
         }
@@ -123,17 +139,7 @@ public class ManageAlbumActivity extends AppCompatActivity {
         //Detects request codes
         if(requestCode == GET_FROM_GALLERY && resultCode == Activity.RESULT_OK) {
             Uri selectedImage = data.getData();
-            Bitmap bitmap = null;
-            try {
-                bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
-                photoList.add(bitmap);
-            } catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            photoList.add(selectedImage);
         }
     }
 
