@@ -1,20 +1,31 @@
 package pt.ist.cmu.p2photo;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
 
     //TODO change to false. it's true for testing purposes.
-    public static boolean loggedIn = true;
+    public static boolean loggedIn = false;
+    static int MODE_SELECTION = 1;
+    static int MODE_CLOUD = 1;
+    static int MODE_WIFI_DIRECT = 2;
+
+    int mode;
+
 
     Button signUp;
     Button login;
     Button createAlbum;
     Button viewAlbum;
+
+    Intent modeSelectionIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +38,10 @@ public class MainActivity extends AppCompatActivity {
         viewAlbum = (Button) findViewById(R.id.main_viewAlbum);
 
 
+        modeSelectionIntent = new Intent(MainActivity.this, ModeSelectionActivity.class);
+        startActivityForResult(modeSelectionIntent, MODE_SELECTION);
+
+
     }
 
     @Override
@@ -37,6 +52,26 @@ public class MainActivity extends AppCompatActivity {
             loggedInView();
         }
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+
+        //Detects request codes
+        if(requestCode == MODE_SELECTION) {
+            if(resultCode == Activity.RESULT_OK) {
+                int modeRes = data.getIntExtra("mode",-1);
+
+                if(modeRes == MODE_CLOUD || modeRes == MODE_WIFI_DIRECT)
+                    mode = modeRes;
+            }
+            else {
+                startActivityForResult(modeSelectionIntent, MODE_SELECTION);
+            }
+        }
+    }
+
 
     public void signUpOnClick(View v) {
         Intent signUpIntent = new Intent(MainActivity.this, SignUpActivity.class);
@@ -80,5 +115,4 @@ public class MainActivity extends AppCompatActivity {
         createAlbum.setVisibility(View.GONE);
         viewAlbum.setVisibility(View.GONE);
     }
-
 }

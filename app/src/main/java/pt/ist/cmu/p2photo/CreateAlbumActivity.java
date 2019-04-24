@@ -29,7 +29,7 @@ public class CreateAlbumActivity extends AppCompatActivity {
         cancelBtn = (Button) findViewById(R.id.createalbum_cancel);
     }
 
-    public void CreateOnClick(View v) {
+    public void createAlbumOnClick(View v) {
 
         // TODO contact server to create Album and check if already exists with that name
         // static values for now
@@ -41,8 +41,7 @@ public class CreateAlbumActivity extends AppCompatActivity {
         }
     }
 
-    public void CreateAlbumCancelOnClick(View v) {
-
+    public void cancelOnClick(View v) {
         finish();
     }
 

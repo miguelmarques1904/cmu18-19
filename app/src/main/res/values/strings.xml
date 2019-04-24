@@ -24,4 +24,7 @@
     <string name="can_add">Users You Can Add To Album:</string>
     <string name="cant_add">Users That You Share Ownership With:</string>
     <string name="album_photo">Album Photo</string>
+    <string name="select_application_mode">Select Application Mode</string>
+    <string name="cloud_storage">Cloud Storage</string>
+    <string name="wifi_direct">WiFi-Direct</string>
 </resources>
