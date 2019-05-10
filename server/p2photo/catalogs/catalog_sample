@@ -1,0 +1,8 @@
+The catalogs for each album will be saved in this directory.
+This is totally unnecessary because all the catalogs' URLs are saved in the membership table.
+This is just for logging purposes.
+
+Struture:
+
+<username>,<catalog URL>
+...
