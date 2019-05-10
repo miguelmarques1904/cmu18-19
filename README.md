@@ -45,9 +45,9 @@ All calls (except register and login) require user authentication with a valid t
 | ------------- | ------------- |
 | POST /users/register  | Registers a new user  |
 | POST /users/login  | Logs in an existing user and returns an auth token  |
-| GET  /users/logout  | Logs out an user |
-| GET  /users  | Returns all the existing users  |
+| GET /users/logout  | Logs out an user |
+| GET /users  | Returns all the existing users  |
 | POST /album/create  | Creates an album and returns its ID  |
-| POST /album/\<id\>/add/\<username\>  | Add user <username> to the membership of album <id>  |
-| GET  /album/\<id\> | Returns all the catalog data for album <id>  |
-| GET  /album/user/\<username\>  | Returns all the album of which user <username> is member  |
+| POST /album/\<id\>/add/\<username\>  | Add user \<username\> to the membership of album \<id\>  |
+| GET /album/\<id\> | Returns all the catalog data for album \<id\>  |
+| GET /album/user/\<username\>  | Returns all the album of which user \<username\> is member  |
