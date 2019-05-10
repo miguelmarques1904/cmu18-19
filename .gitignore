@@ -70,3 +70,4 @@ fastlane/readme.md
 # Server API
 *.sqlite3
 __pycache__
+catalogs
