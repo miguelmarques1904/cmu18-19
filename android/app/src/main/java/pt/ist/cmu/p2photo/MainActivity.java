@@ -1,77 +1,70 @@
 package pt.ist.cmu.p2photo;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
+
+import com.orhanobut.hawk.Hawk;
+
+import pt.ist.cmu.api.ApiService;
+import pt.ist.cmu.api.RetrofitInstance;
+import pt.ist.cmu.helpers.Constants;
+import pt.ist.cmu.models.User;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    //TODO change to false. it's true for testing purposes.
+    protected static final int MODE_CLOUD = 1;
+    protected static final int MODE_WIFI_DIRECT = 2;
+
     public static boolean loggedIn = false;
-    static int MODE_SELECTION = 1;
-    static int MODE_CLOUD = 1;
-    static int MODE_WIFI_DIRECT = 2;
 
-    int mode;
-
+    private int mode;
 
     Button signUp;
     Button login;
     Button createAlbum;
     Button viewAlbum;
 
-    Intent modeSelectionIntent;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        signUp = (Button) findViewById(R.id.main_signup);
-        login = (Button) findViewById(R.id.main_login);
-        createAlbum = (Button) findViewById(R.id.main_createAlbum);
-        viewAlbum = (Button) findViewById(R.id.main_viewAlbum);
+        signUp = findViewById(R.id.main_signup);
+        login = findViewById(R.id.main_login);
+        createAlbum = findViewById(R.id.main_createAlbum);
+        viewAlbum = findViewById(R.id.main_viewAlbum);
 
+        this.mode = getIntent().getIntExtra("mode", 1);
 
-        modeSelectionIntent = new Intent(MainActivity.this, ModeSelectionActivity.class);
-        startActivityForResult(modeSelectionIntent, MODE_SELECTION);
+        // initialize hawk
+        Hawk.init(MainActivity.this).build();
 
-
+        // check if logged in already (preferences)
+        if (Hawk.contains(Constants.CURRENT_USER_KEY)) {
+            loggedIn = true;
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        if(loggedIn) {
+        if (loggedIn) {
             loggedInView();
         }
     }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-
-        //Detects request codes
-        if(requestCode == MODE_SELECTION) {
-            if(resultCode == Activity.RESULT_OK) {
-                int modeRes = data.getIntExtra("mode",-1);
-
-                if(modeRes == MODE_CLOUD || modeRes == MODE_WIFI_DIRECT)
-                    mode = modeRes;
-            }
-            else {
-                startActivityForResult(modeSelectionIntent, MODE_SELECTION);
-            }
-        }
-    }
-
 
     public void signUpOnClick(View v) {
         Intent signUpIntent = new Intent(MainActivity.this, SignUpActivity.class);
@@ -79,12 +72,49 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void logInMainOnClick(View v) {
+        if (loggedIn) {
 
-        if(loggedIn) {
+            // Get token
+            User user = Hawk.get(Constants.CURRENT_USER_KEY);
+            String token = "Token " + user.getToken();
+
+            // Call logout
+            ApiService service = RetrofitInstance.getRetrofitInstance().create(ApiService.class);
+            Call<Void> call = service.logoutUser(token);
+
+            call.enqueue(new Callback<Void>() {
+                Toast toast;
+
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    switch (response.code()) {
+                        case 200:
+                            toast = Toast.makeText(getApplicationContext(), "Logged Out", Toast.LENGTH_SHORT);
+                            break;
+                        case 401:
+                            toast = Toast.makeText(getApplicationContext(), "You were not logged in.", Toast.LENGTH_SHORT);
+                            break;
+                        default:
+                            toast = Toast.makeText(getApplicationContext(), "Something went wrong...", Toast.LENGTH_SHORT);
+                            break;
+                    }
+
+                    toast.show();
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    toast = Toast.makeText(getApplicationContext(), "Something went wrong... Network may be down...", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            });
+
+            // Remove user from shared preferences
+            Hawk.delete(Constants.CURRENT_USER_KEY);
+
             loggedIn = false;
             loggedOutView();
-        }
-        else {
+        } else {
             Intent signInIntent = new Intent(MainActivity.this, SignInActivity.class);
             startActivity(signInIntent);
         }

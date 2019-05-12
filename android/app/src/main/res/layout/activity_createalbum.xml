@@ -57,7 +57,7 @@
         app:layout_constraintTop_toBottomOf="@id/constraintLayout6">
 
         <TextView
-            android:id="@+id/createalbum_errorText"
+            android:id="@+id/createalbum_message"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"

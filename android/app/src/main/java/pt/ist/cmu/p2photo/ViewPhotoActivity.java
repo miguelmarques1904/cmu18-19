@@ -24,14 +24,12 @@ public class ViewPhotoActivity extends AppCompatActivity {
 
         Bitmap b = ImageHelper.getBitmapFromURI(uri, this.getContentResolver());
 
-
-        if(b != null) {
-            ImageView iv = (ImageView) findViewById(R.id.viewphoto_image);
+        if (b != null) {
+            ImageView iv = findViewById(R.id.viewphoto_image);
             iv.setImageBitmap(b);
             iv.setAdjustViewBounds(true);
         }
     }
-
 
     public void viewPhotoBackOnClick(View v) {
         finish();

@@ -7,29 +7,23 @@ import android.view.View;
 
 public class ModeSelectionActivity extends AppCompatActivity {
 
-    Intent intent;
+    private Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_modeselection);
-
-        intent = getIntent();
+        intent = new Intent(ModeSelectionActivity.this, MainActivity.class);
     }
-
 
     public void cloudOnClick(View v) {
         intent.putExtra("mode", MainActivity.MODE_CLOUD);
-        setResult(RESULT_OK, intent);
-        finish();
-
+        startActivity(intent);
     }
 
     public void wifiOnClick(View v) {
         intent.putExtra("mode", MainActivity.MODE_WIFI_DIRECT);
-        setResult(RESULT_OK, intent);
-        finish();
-
+        startActivity(intent);
     }
 }

@@ -55,16 +55,16 @@ public class ManageAlbumActivity extends AppCompatActivity {
         setContentView(R.layout.activity_managealbum);
 
         albumName = getIntent().getStringExtra("albumName");
-        title = (TextView) findViewById(R.id.managealbum_title);
-        title.setText("Managing \"" + albumName + "\" album.");
+        title = findViewById(R.id.managealbum_title);
+        title.setText("Managing '" + albumName + "' album");
 
-        addPhotoBtn = (Button) findViewById(R.id.managealbum_addphoto);
-        addUserBtn = (Button) findViewById(R.id.managealbum_adduser);
-        backBtn = (Button) findViewById(R.id.managealbum_back);
+        addPhotoBtn = findViewById(R.id.managealbum_addphoto);
+        addUserBtn = findViewById(R.id.managealbum_adduser);
+        backBtn = findViewById(R.id.managealbum_back);
 
-        col1 = (LinearLayout) findViewById(R.id.managealbum_ll1);
-        col2 = (LinearLayout) findViewById(R.id.managealbum_ll2);
-        col3 = (LinearLayout) findViewById(R.id.managealbum_ll3);
+        col1 = findViewById(R.id.managealbum_ll1);
+        col2 = findViewById(R.id.managealbum_ll2);
+        col3 = findViewById(R.id.managealbum_ll3);
 
         col1Height = 0;
         col2Height = 0;
@@ -72,7 +72,6 @@ public class ManageAlbumActivity extends AppCompatActivity {
 
         imageParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         imageParams.setMargins(0,0,0,20);
-
     }
 
     @Override
@@ -80,13 +79,12 @@ public class ManageAlbumActivity extends AppCompatActivity {
 
         super.onResume();
 
-        for(;nPhotos < photoList.size(); nPhotos++) {
+        for (; nPhotos < photoList.size(); nPhotos++) {
             final Uri uri = photoList.get(nPhotos);
-
 
             Bitmap b = ImageHelper.getBitmapFromURI(uri, this.getContentResolver());
 
-            if(b != null) {
+            if (b != null) {
                 // This works because column widths are equal
                 double imageRatio = (double) b.getHeight() / b.getWidth();
 
@@ -103,29 +101,22 @@ public class ManageAlbumActivity extends AppCompatActivity {
                     }
                 });
 
-
                 // Add photo to column with the smallest height
-                double minColHeight = Math.min(Math.min(col1Height,col2Height),col3Height);
-                if(minColHeight == col1Height) {
+                double minColHeight = Math.min(Math.min(col1Height, col2Height), col3Height);
+                if (minColHeight == col1Height) {
                     col1.addView(iv);
-                    col1Height+= imageRatio;
-                }
-                else if(minColHeight == col2Height) {
+                    col1Height += imageRatio;
+                } else if (minColHeight == col2Height) {
                     col2.addView(iv);
-                    col2Height+= imageRatio;
-                }
-                else {
+                    col2Height += imageRatio;
+                } else {
                     col3.addView(iv);
-                    col3Height+= imageRatio;
+                    col3Height += imageRatio;
                 }
 
             }
-
         }
-
-
     }
-
 
     public void addPhotoClick(View v) {
         startActivityForResult(new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI), GET_FROM_GALLERY);
@@ -135,9 +126,8 @@ public class ManageAlbumActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-
-        //Detects request codes
-        if(requestCode == GET_FROM_GALLERY && resultCode == Activity.RESULT_OK) {
+        // detects request codes
+        if (requestCode == GET_FROM_GALLERY && resultCode == Activity.RESULT_OK) {
             Uri selectedImage = data.getData();
             photoList.add(selectedImage);
         }
@@ -150,7 +140,6 @@ public class ManageAlbumActivity extends AppCompatActivity {
     }
 
     public void backOnClick(View v) {
-
         finish();
     }
 }

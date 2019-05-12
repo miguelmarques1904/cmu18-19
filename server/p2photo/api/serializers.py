@@ -13,6 +13,7 @@ class ListUserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username',)
 
+# user representation
 class UserListingField(serializers.RelatedField):
     def to_representation(self, value):
         return "%s" % value.username
@@ -25,8 +26,15 @@ class CatalogSerializer(serializers.ModelSerializer):
         model = Membership
         fields = ('user', 'catalog',)
 
+# album representation
+class AlbumListingField(serializers.RelatedField):
+    def to_representation(self, value):
+        return "%s" % value.name
+
 # membership
 class MembershipSerializer(serializers.ModelSerializer):
+    album = AlbumListingField(read_only = True)
+
     class Meta:
         model = Membership
-        fields = ('album_id',)
+        fields = ('album',)
