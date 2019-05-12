@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         this.mode = getIntent().getIntExtra("mode", 1);
 
         // initialize hawk
-        Hawk.init(MainActivity.this).build();
+        Hawk.init(getApplicationContext()).build();
 
         // check if logged in already (preferences)
         if (Hawk.contains(Constants.CURRENT_USER_KEY)) {
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                             toast = Toast.makeText(getApplicationContext(), "Logged Out", Toast.LENGTH_SHORT);
                             break;
                         case 401:
-                            toast = Toast.makeText(getApplicationContext(), "You were not logged in.", Toast.LENGTH_SHORT);
+                            toast = Toast.makeText(getApplicationContext(), "You were not logged in on the server", Toast.LENGTH_SHORT);
                             break;
                         default:
                             toast = Toast.makeText(getApplicationContext(), "Something went wrong...", Toast.LENGTH_SHORT);
@@ -104,13 +104,12 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<Void> call, Throwable t) {
-                    toast = Toast.makeText(getApplicationContext(), "Something went wrong... Network may be down...", Toast.LENGTH_SHORT);
-                    toast.show();
+                    Toast.makeText(getApplicationContext(), "Something went wrong... Network may be down...", Toast.LENGTH_SHORT).show();
                 }
             });
 
-            // Remove user from shared preferences
-            Hawk.delete(Constants.CURRENT_USER_KEY);
+            // Remove user and albums from shared preferences
+            Hawk.deleteAll();
 
             loggedIn = false;
             loggedOutView();

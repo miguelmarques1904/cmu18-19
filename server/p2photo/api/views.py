@@ -109,7 +109,7 @@ class CreateAlbumView(generics.CreateAPIView):
 
         # save album and membership on database
         try:
-            album = Album.objects.create(name = name, owner = user)
+            album = Album.objects.create(name = name)
             membership = Membership.objects.create(album = album, user = user, catalog = url)
 
             # open and write url to album catalog file
@@ -152,10 +152,6 @@ class AddUserView(generics.CreateAPIView):
         user = request.user
         if isinstance(user, AnonymousUser):
             return Response({'error': 'User is invalid.'}, status = status.HTTP_401_UNAUTHORIZED)
-
-        # check ownership
-        if not album.owner == user:
-            return Response({'error': 'You do not own this album.'}, status = status.HTTP_403_FORBIDDEN)
 
         # check if membership already exists
         if Membership.objects.filter(album = album, user = add_user).exists():

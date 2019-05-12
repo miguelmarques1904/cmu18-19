@@ -42,10 +42,15 @@ public class ViewAlbumActivity extends AppCompatActivity {
 
         title = findViewById(R.id.viewalbum_title);
 
-        Hawk.init(ViewAlbumActivity.this).build();
+        // get user from preferences
         User user = Hawk.get(Constants.CURRENT_USER_KEY);
 
         String token = "Token " + user.getToken();
+
+        // delete current set album, if exists
+        if (Hawk.contains(Constants.CURRENT_ALBUM_KEY)) {
+            Hawk.delete(Constants.CURRENT_ALBUM_KEY);
+        }
 
         // Call server
         // Add albums to list
@@ -53,8 +58,6 @@ public class ViewAlbumActivity extends AppCompatActivity {
         Call<List<Album>> call = service.getUserAlbums(token);
 
         call.enqueue(new Callback<List<Album>>() {
-            Toast toast;
-
             @Override
             public void onResponse(Call<List<Album>> call, Response<List<Album>> response) {
                 switch (response.code()) {
@@ -71,7 +74,7 @@ public class ViewAlbumActivity extends AppCompatActivity {
                             btn.setOnClickListener(new View.OnClickListener() {
                                 public void onClick(View v) {
                                     Intent manageAlbumIntent = new Intent(ViewAlbumActivity.this, ManageAlbumActivity.class);
-                                    manageAlbumIntent.putExtra("albumName", albumName);
+                                    manageAlbumIntent.putExtra(Constants.CURRENT_ALBUM_KEY, albumName);
                                     startActivity(manageAlbumIntent);
                                 }
                             });
@@ -83,20 +86,17 @@ public class ViewAlbumActivity extends AppCompatActivity {
                         title.setText("You have no albums");
                         break;
                     case 401:
-                        toast = Toast.makeText(getApplicationContext(), "Credentials are invalid.", Toast.LENGTH_SHORT);
-                        toast.show();
+                        Toast.makeText(getApplicationContext(), "Credentials are invalid.", Toast.LENGTH_SHORT).show();
                         break;
                     default:
-                        toast = Toast.makeText(getApplicationContext(), "Something went wrong...", Toast.LENGTH_SHORT);
-                        toast.show();
+                        Toast.makeText(getApplicationContext(), "Something went wrong...", Toast.LENGTH_SHORT).show();
                         break;
                 }
             }
 
             @Override
             public void onFailure(Call<List<Album>> call, Throwable t) {
-                toast = Toast.makeText(getApplicationContext(), "Something went wrong... Network may be down...", Toast.LENGTH_SHORT);
-                toast.show();
+                Toast.makeText(getApplicationContext(), "Something went wrong... Network may be down...", Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -16,20 +16,34 @@ import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.orhanobut.hawk.Hawk;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.ist.cmu.api.ApiService;
+import pt.ist.cmu.api.RetrofitInstance;
+import pt.ist.cmu.helpers.Constants;
 import pt.ist.cmu.helpers.ImageHelper;
+import pt.ist.cmu.models.Album;
+import pt.ist.cmu.models.Membership;
+import pt.ist.cmu.models.User;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ManageAlbumActivity extends AppCompatActivity {
+
+    private String token;
 
     static int GET_FROM_GALLERY = 1; // ID of the activity started, used to process the result on the onActivityResult() function
     int nPhotos = 0;
 
-    String albumName;
+    Album album;
 
     TextView title;
 
@@ -54,9 +68,14 @@ public class ManageAlbumActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_managealbum);
 
-        albumName = getIntent().getStringExtra("albumName");
+        if (getIntent().getStringExtra(Constants.CURRENT_ALBUM_KEY) != null) {
+            album = new Album(getIntent().getStringExtra(Constants.CURRENT_ALBUM_KEY));
+        } else if (Hawk.contains(Constants.CURRENT_ALBUM_KEY)) {
+            album = Hawk.get(Constants.CURRENT_ALBUM_KEY);
+        } else return;
+
         title = findViewById(R.id.managealbum_title);
-        title.setText("Managing '" + albumName + "' album");
+        title.setText("Managing '" + album.getName() + "' album");
 
         addPhotoBtn = findViewById(R.id.managealbum_addphoto);
         addUserBtn = findViewById(R.id.managealbum_adduser);
@@ -72,6 +91,44 @@ public class ManageAlbumActivity extends AppCompatActivity {
 
         imageParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         imageParams.setMargins(0,0,0,20);
+
+        // get token
+        User caller = Hawk.get(Constants.CURRENT_USER_KEY);
+        token = "Token " + caller.getToken();
+
+        ApiService service = RetrofitInstance.getRetrofitInstance().create(ApiService.class);
+        Call<List<Membership>> memberCall = service.getAlbum(token, album.getName());
+
+        memberCall.enqueue(new Callback<List<Membership>>() {
+            @Override
+            public void onResponse(Call<List<Membership>> memberCall, Response<List<Membership>> response) {
+                switch (response.code()) {
+                    case 200:
+                        album.setCatalogs(response.body());
+
+                        // save album to preferences
+                        Hawk.put(Constants.CURRENT_ALBUM_KEY, album);
+                        break;
+                    case 401:
+                        Toast.makeText(getApplicationContext(), "You are not logged in.", Toast.LENGTH_LONG).show();
+                        break;
+                    case 403:
+                        Toast.makeText(getApplicationContext(), "You are not a member of this album.", Toast.LENGTH_SHORT).show();
+                        break;
+                    case 404:
+                        Toast.makeText(getApplicationContext(), "This album does not exist.", Toast.LENGTH_SHORT).show();
+                        break;
+                    default:
+                        Toast.makeText(getApplicationContext(), "Something went wrong on the server side.", Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Membership>> memberCall, Throwable t) {
+                Toast.makeText(getApplicationContext(), "Something went wrong... Network may be down...", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -135,11 +192,13 @@ public class ManageAlbumActivity extends AppCompatActivity {
 
     public void addUserClick(View v) {
         Intent addUserIntent = new Intent(ManageAlbumActivity.this, AddUserActivity.class);
-        addUserIntent.putExtra("albumName", albumName);
         startActivity(addUserIntent);
     }
 
     public void backOnClick(View v) {
+        // delete current album
+        Hawk.delete(Constants.CURRENT_ALBUM_KEY);
+
         finish();
     }
 }

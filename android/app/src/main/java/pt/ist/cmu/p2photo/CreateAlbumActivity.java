@@ -39,9 +39,6 @@ public class CreateAlbumActivity extends AppCompatActivity {
 
         createBtn = findViewById(R.id.createalbum_create);
         cancelBtn = findViewById(R.id.createalbum_cancel);
-
-        // initialize hawk
-        Hawk.init(CreateAlbumActivity.this).build();
     }
 
     public void createAlbumOnClick(View v) {
@@ -52,7 +49,7 @@ public class CreateAlbumActivity extends AppCompatActivity {
 
         if (!name.isEmpty()) {
 
-            // DO TO DROPBOX, CREATE FILE AND GET ADDRESS
+            // TODO: ADD TO DROPBOX, CREATE FILE AND GET ADDRESS
             String catalog = "http://google.com";
 
             Hawk.init(CreateAlbumActivity.this).build();

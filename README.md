@@ -2,6 +2,11 @@
 
 P2Photo. Made for Android 4.0+
 
+## App
+
+- To run the app, go to *pt.ist.cmu.helpers.Constants* and set the IP Addess in the BASE_URL
+- Also, go to res/xml/network_security_config.xml and add the IP Address of the API Endpoint (this is a temporary measure)
+
 ## Server
 
 To configure the P2Photo server:

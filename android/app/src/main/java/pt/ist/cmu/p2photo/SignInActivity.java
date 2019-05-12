@@ -47,9 +47,6 @@ public class SignInActivity extends AppCompatActivity {
 
         loginBtn = findViewById(R.id.login_login);
         cancelBtn = findViewById(R.id.login_cancel);
-
-        // initialize hawk
-        Hawk.init(SignInActivity.this).build();
     }
 
     // Dialog_signin login button

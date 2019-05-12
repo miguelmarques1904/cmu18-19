@@ -3,6 +3,7 @@ package pt.ist.cmu.api;
 import java.util.List;
 
 import pt.ist.cmu.models.Album;
+import pt.ist.cmu.models.Membership;
 import pt.ist.cmu.models.User;
 
 import retrofit2.Call;
@@ -38,7 +39,7 @@ public interface ApiService {
     Call<Void> addUserToAlbum(@Header("Authorization") String token, @Path("name") String name, @Path("username") String username, @Field("catalog") String catalog);
 
     @GET("album/{name}")
-    Call<List<User>> getAlbum(@Header("Authorization") String token, @Path("name") String name);
+    Call<List<Membership>> getAlbum(@Header("Authorization") String token, @Path("name") String name);
 
     @GET("users/albums")
     Call<List<Album>> getUserAlbums(@Header("Authorization") String token);
