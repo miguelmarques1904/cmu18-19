@@ -1,9 +1,8 @@
 package pt.ist.cmu.p2photo;
 
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -13,12 +12,18 @@ import android.widget.Toast;
 
 import com.orhanobut.hawk.Hawk;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import pt.ist.cmu.api.ApiService;
 import pt.ist.cmu.api.RetrofitInstance;
+import pt.ist.cmu.cloud.DropboxActivity;
+import pt.ist.cmu.cloud.DropboxClientFactory;
+import pt.ist.cmu.cloud.UploadFileTask;
 import pt.ist.cmu.helpers.Constants;
+import pt.ist.cmu.helpers.StringGenerator;
 import pt.ist.cmu.models.Album;
 import pt.ist.cmu.models.Membership;
 import pt.ist.cmu.models.User;
@@ -26,7 +31,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class AddUserActivity extends AppCompatActivity {
+public class AddUserActivity extends DropboxActivity {
 
     private Album album;
     private LinearLayout.LayoutParams layoutParams;
@@ -112,7 +117,6 @@ public class AddUserActivity extends AppCompatActivity {
                     case 200:
                         for (User user : response.body()) {
                             String username = user.getUsername();
-
                             if (!memberList.contains(username)) {
                                 CheckBox cb = new CheckBox(getApplicationContext());
                                 cb.setText(username);
@@ -124,6 +128,7 @@ public class AddUserActivity extends AppCompatActivity {
 
                         if (response.body().size() <= 1) {
                             newUsers.setText("There are no users available to add.");
+                            addBtn.setEnabled(false);
                         }
                         break;
                     case 401:
@@ -144,77 +149,103 @@ public class AddUserActivity extends AppCompatActivity {
     }
 
     public void addUserClick(View v) {
+        addBtn.setEnabled(false);
+        addBtn.setText("Adding...");
+
         for (final CheckBox cb : checkboxList) {
+            // get username from checkbox
             final String username = cb.getText().toString();
 
+            // loop through checkboxes
             if (cb.isChecked() && !memberList.contains(username)) {
 
-                // TODO create catalog for new users on dropbox
-                final String catalog = "http://google.com";
+                // create and upload new catalog
+                File catalog = new File(AddUserActivity.this.getFilesDir().getPath() + "/" + StringGenerator.generateName(25) + ".txt");
+                try {
+                    catalog.createNewFile();
+                } catch (IOException e) {
+                    Toast.makeText(getApplicationContext(), "Unable to create user catalog.", Toast.LENGTH_SHORT).show();
+                    continue;
+                }
 
-                Call<Void> addUserCall = service.addUserToAlbum(token, album.getName(), username, catalog);
+                String file_uri = Uri.fromFile(catalog).toString();
 
-                addUserCall.enqueue(new Callback<Void>() {
-                    Toast toast;
-
+                // upload catalog to dropbox
+                new UploadFileTask(this, DropboxClientFactory.getClient(), new UploadFileTask.Callback() {
                     @Override
-                    public void onResponse(Call<Void> addUserCall, Response<Void> response) {
-                        switch (response.code()) {
-                            case 200:
-                                // add to members text area
-                                showMember(username);
-
-                                // remove from checkboxes
-                                userAddListLayout.removeView(cb);
-                                checkboxList.remove(cb);
-
-                                // update album membership
-                                List<Membership> newMembers = album.getCatalogs();
-                                newMembers.add(new Membership(username, catalog));
-                                album.setCatalogs(newMembers);
-
-                                // update album on preferences
-                                Hawk.put(Constants.CURRENT_ALBUM_KEY, album);
-
-                                toast = Toast.makeText(getApplicationContext(), "Users were added successfully.", Toast.LENGTH_SHORT);
-                                toast.show();
-                                break;
-                            case 400:
-                                toast = Toast.makeText(getApplicationContext(), "Catalog URL is invalid.", Toast.LENGTH_SHORT);
-                                toast.show();
-                                break;
-                            case 401:
-                                toast = Toast.makeText(getApplicationContext(), "You were not logged in.", Toast.LENGTH_SHORT);
-                                toast.show();
-                                break;
-                            case 404:
-                                toast = Toast.makeText(getApplicationContext(), "This album does not exist.", Toast.LENGTH_SHORT);
-                                toast.show();
-                                break;
-                            case 409:
-                                toast = Toast.makeText(getApplicationContext(), "User '" + username + "' is already a member of this album.", Toast.LENGTH_SHORT);
-                                toast.show();
-                                break;
-                            case 500:
-                                toast = Toast.makeText(getApplicationContext(), "Something went wrong on the server side.", Toast.LENGTH_SHORT);
-                                toast.show();
-                                break;
-                            default:
-                                toast = Toast.makeText(getApplicationContext(), "Something went wrong on the server side.", Toast.LENGTH_SHORT);
-                                toast.show();
-                                break;
-                        }
+                    public void onUploadComplete(String result) {
+                        addUser(username, result, cb);
                     }
 
                     @Override
-                    public void onFailure(Call<Void> addUserCall, Throwable t) {
-                        toast = Toast.makeText(getApplicationContext(), "Something went wrong... Network may be down...", Toast.LENGTH_SHORT);
-                        toast.show();
+                    public void onError(Exception e) {
+                        Toast.makeText(AddUserActivity.this, "An error occurred when uploading catalog to Dropbox.", Toast.LENGTH_LONG).show();
                     }
-                });
+                }).execute(file_uri, "");
 
             }
         }
+
+        // TODO: delete catalog files
+
+        addBtn.setText("Add");
+        addBtn.setEnabled(true);
+    }
+
+    private void addUser(final String username, final String catalog, final CheckBox cb) {
+        Call<Void> addUserCall = service.addUserToAlbum(token, album.getName(), username, catalog);
+
+        addUserCall.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> addUserCall, Response<Void> response) {
+                switch (response.code()) {
+                    case 200:
+                        // add to members text area
+                        showMember(username);
+
+                        // remove from checkboxes
+                        userAddListLayout.removeView(cb);
+                        checkboxList.remove(cb);
+
+                        // update album membership
+                        List<Membership> newMembers = album.getCatalogs();
+                        newMembers.add(new Membership(username, catalog));
+                        album.setCatalogs(newMembers);
+
+                        // update album on preferences
+                        Hawk.put(Constants.CURRENT_ALBUM_KEY, album);
+
+                        // update text
+                        ownUsers.setText("Users That You Share Ownership With:");
+
+                        Toast.makeText(getApplicationContext(), "Users were added successfully.", Toast.LENGTH_SHORT).show();
+                        break;
+                    case 400:
+                        Toast.makeText(getApplicationContext(), "Catalog URL is invalid.", Toast.LENGTH_SHORT).show();
+                        break;
+                    case 401:
+                        Toast.makeText(getApplicationContext(), "You were not logged in.", Toast.LENGTH_SHORT).show();
+                        break;
+                    case 404:
+                        Toast.makeText(getApplicationContext(), "This album does not exist.", Toast.LENGTH_SHORT).show();
+                        break;
+                    case 409:
+                        Toast.makeText(getApplicationContext(), "User '" + username + "' is already a member of this album.", Toast.LENGTH_SHORT);
+                        break;
+                    case 500:
+                        Toast.makeText(getApplicationContext(), "Something went wrong on the server side.", Toast.LENGTH_SHORT).show();
+                        break;
+                    default:
+                        Toast.makeText(getApplicationContext(), "Something went wrong on the server side.", Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> addUserCall, Throwable t) {
+                Toast.makeText(getApplicationContext(), "Something went wrong... Network may be down...", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     public void backOnClick(View v) {
@@ -230,4 +261,7 @@ public class AddUserActivity extends AppCompatActivity {
         userOwnListLayout.addView(tv);
     }
 
+    @Override
+    protected void loadData() {
+    }
 }

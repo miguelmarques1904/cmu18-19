@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onResponse(Call<Void> call, Response<Void> response) {
                     switch (response.code()) {
                         case 200:
-                            toast = Toast.makeText(getApplicationContext(), "Logged Out", Toast.LENGTH_SHORT);
+                            toast = Toast.makeText(getApplicationContext(), "Logged Out Successfully", Toast.LENGTH_SHORT);
                             break;
                         case 401:
                             toast = Toast.makeText(getApplicationContext(), "You were not logged in on the server", Toast.LENGTH_SHORT);
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-            // Remove user and albums from shared preferences
+            // Remove user and album from shared preferences
             Hawk.deleteAll();
 
             loggedIn = false;

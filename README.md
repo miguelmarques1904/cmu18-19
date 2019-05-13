@@ -1,6 +1,6 @@
 # Project of Mobile and Ubiquitous Computing, IST 2018/2019
 
-P2Photo. Made for Android 4.0+
+P2Photo. Made for Android 5.0+
 
 ## App
 

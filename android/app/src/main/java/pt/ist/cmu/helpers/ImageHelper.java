@@ -9,7 +9,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class ImageHelper {
-
     public static Bitmap getBitmapFromURI(Uri uri, ContentResolver cr) {
         Bitmap bitmap = null;
 
@@ -20,7 +19,6 @@ public class ImageHelper {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
 
         return bitmap;
     }

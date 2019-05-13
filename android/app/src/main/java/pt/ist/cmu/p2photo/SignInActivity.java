@@ -1,30 +1,25 @@
 package pt.ist.cmu.p2photo;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.SystemClock;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.dropbox.core.android.Auth;
 import com.orhanobut.hawk.Hawk;
 
 import pt.ist.cmu.api.ApiService;
 import pt.ist.cmu.api.RetrofitInstance;
+import pt.ist.cmu.cloud.DropboxActivity;
 import pt.ist.cmu.helpers.Constants;
 import pt.ist.cmu.models.User;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class SignInActivity extends AppCompatActivity {
+public class SignInActivity extends DropboxActivity {
 
     private String username;
     private String password;
@@ -57,7 +52,7 @@ public class SignInActivity extends AppCompatActivity {
         username = usernameField.getText().toString();
         password = passwordField.getText().toString();
 
-        if (!username.isEmpty() && !password.isEmpty()) {
+        if (!username.isEmpty() && !password.isEmpty() && !MainActivity.loggedIn) {
 
             ApiService service = RetrofitInstance.getRetrofitInstance().create(ApiService.class);
             Call<User> call = service.loginUser(username, password);
@@ -68,8 +63,6 @@ public class SignInActivity extends AppCompatActivity {
                     switch (response.code()) {
                         case 200:
                             message.setTextColor(Color.rgb(0, 133, 119));
-                            message.setText("You are logged in. Dropbox will open to login.");
-
                             MainActivity.loggedIn = true;
 
                             // get user
@@ -79,8 +72,18 @@ public class SignInActivity extends AppCompatActivity {
                             // save user on shared preferences (hawk)
                             Hawk.put(Constants.CURRENT_USER_KEY, user);
 
-                            // login to dropbox
-                            openDropbox();
+                            if (!hasToken()) {
+                                message.setText("You are logged in. You will be redirected to Dropbox to login.");
+                                new java.util.Timer().schedule( new java.util.TimerTask() {
+                                        @Override
+                                        public void run() {
+                                            Auth.startOAuth2Authentication(SignInActivity.this, Constants.DROPBOX_APP_KEY);
+                                        }
+                                    }, 2000
+                                );
+                            } else {
+                                message.setText("You are logged in. You already signed in on Dropbox.");
+                            }
 
                             break;
                         case 400:
@@ -101,20 +104,20 @@ public class SignInActivity extends AppCompatActivity {
                 }
             });
 
+        } else if (MainActivity.loggedIn) {
+            message.setText("You are already logged in.");
         } else {
             message.setText("Username and/or password are empty.");
         }
     }
 
-    public void openDropbox() {
-        // open webview for user to login
-        // save dropbox tokens for future use
-
-        // SystemClock.sleep(3000);
+    @Override
+    protected void loadData() {
+        message.setText("Login to Dropbox was successful.");
+        loginBtn.setEnabled(false);
     }
 
     public void logInCancelOnClick(View v) {
         finish();
     }
-
 }
