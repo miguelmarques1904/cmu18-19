@@ -42,18 +42,6 @@ When calling methods that require user authentication, remember to add the follo
 Authorization: Token <auth_token>
 ```
 
-Now, the server will be running on http://127.0.0.1:8000/.
-
-- To access the Django Admin Panel, go to http://127.0.0.1:8000/admin.
-
-- To make API Calls, go to http://127.0.0.1:8000/p2photo/api/ and add the path to the API Call or use cURL.
-
-When calling methods that require user authentication, remember to add the following to the HTTP request:
-
-```
-Authorization: Token <auth_token>
-```
-
 #### P2Photo Server API Calls
 
 All calls (except register and login) require user authentication with a valid token received upon login.
