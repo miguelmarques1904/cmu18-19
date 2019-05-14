@@ -31,4 +31,13 @@ public class Membership {
         this.catalog = catalog;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        Membership m = (Membership)o;
+        if (m.getUsername().equals(this.username) && m.getCatalog().equals(this.catalog)) {
+            return true;
+        }
+        return false;
+    }
+
 }

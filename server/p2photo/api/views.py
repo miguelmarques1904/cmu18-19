@@ -97,11 +97,10 @@ class FindUsersView(viewsets.ModelViewSet):
 class CreateAlbumView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         # get catalog URL
-        url = request.data.get("catalog")
         name = request.data.get("name")
 
-        if not validate_catalog(url) or len(name) > 50 or not slug_re.match(name):
-            return Response({'error': 'Photo Catalog URL or Album Name are invalid.'}, status = status.HTTP_400_BAD_REQUEST)
+        if not slug_re.match(name):
+            return Response({'error': 'Album Name is invalid.'}, status = status.HTTP_400_BAD_REQUEST)
 
         user = request.user
         if isinstance(user, AnonymousUser):
@@ -110,33 +109,25 @@ class CreateAlbumView(generics.CreateAPIView):
         # save album and membership on database
         try:
             album = Album.objects.create(name = name)
-            membership = Membership.objects.create(album = album, user = user, catalog = url)
+            membership = Membership.objects.create(album = album, user = user, catalog = "0")
 
             # open and write url to album catalog file
-            catalog = open("catalogs/catalog_" + name, 'w+')
-            catalog.write(user.username + "," + url)
+            open("catalogs/catalog_" + name, 'a').close()
 
         except IntegrityError:
             return Response({"error": "Album name is already in use."}, status = status.HTTP_409_CONFLICT)
         except Exception as e:
             return Response({"error": str(e)}, status = status.HTTP_500_INTERNAL_SERVER_ERROR)
-        finally:
-            # close file
-            catalog.close()
 
         return Response(status = status.HTTP_201_CREATED)
 
 
-# POST /album/<name>/add/<username>
+# GET /album/<name>/add/<username>
 class AddUserView(generics.CreateAPIView):
-    def post(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         # get username, album id and new user catalog
         username = self.kwargs.get("username")
         album_name = self.kwargs.get("name")
-        url = request.data.get("catalog")
-
-        if not validate_catalog(url):
-            return Response({'error': 'Photo Catalog URL is invalid.'}, status = status.HTTP_400_BAD_REQUEST)
 
         album = None
         add_user = None
@@ -159,19 +150,15 @@ class AddUserView(generics.CreateAPIView):
 
         # add membership
         try:
-            membership = Membership.objects.create(album = album, user = add_user, catalog = url)
+            membership = Membership.objects.create(album = album, user = add_user, catalog = "0")
         except Exception as e:
             return Response({"error": str(e)}, status = status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        # update catalog file
-        catalog = "catalogs/catalog_" + album_name
-        with open(catalog, 'a') as file:
-            file.write('\n' + username + ',' + url)
 
         return Response(status = status.HTTP_200_OK)
 
 # GET album/<name>
-class GetAlbumView(generics.ListAPIView):
+# POST album/<name>
+class GetAlbumView(generics.ListCreateAPIView):
     def get(self, request, *args, **kwargs):
         album_name = self.kwargs.get("name")
 
@@ -193,6 +180,37 @@ class GetAlbumView(generics.ListAPIView):
         serializer = CatalogSerializer(catalogs, many = True)
 
         return Response(serializer.data, status = status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        catalog = request.data.get("catalog")
+        album_name = self.kwargs.get("name")
+
+        membership = None
+
+        if not validate_catalog(catalog):
+            return Response({'error': 'Catalog URL is invalid.'}, status = status.HTTP_400_BAD_REQUEST)
+
+        # get requesting user
+        user = request.user
+        if isinstance(user, AnonymousUser):
+            return Response({'error': 'User is invalid.'}, status = status.HTTP_401_UNAUTHORIZED)
+
+        # get membership object
+        try:
+            membership = Membership.objects.get(album__name = album_name, user = user)
+        except ObjectDoesNotExist:
+            return Response({"error": "You are not a member of this album."}, status = status.HTTP_403_FORBIDDEN)
+
+        # update catalog file
+        catalog_file = "catalogs/catalog_" + album_name
+        with open(catalog_file, 'a') as f:
+            f.write(user.username + ',' + catalog + '\n')
+
+        # update membership
+        membership.catalog = catalog
+        membership.save()
+
+        return Response(status = status.HTTP_200_OK)
 
 
 # GET users/albums

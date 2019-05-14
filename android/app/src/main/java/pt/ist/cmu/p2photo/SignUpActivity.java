@@ -3,7 +3,6 @@ package pt.ist.cmu.p2photo;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,15 +32,20 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
-        usernameField = (EditText) findViewById(R.id.signup_username);
-        passwordField = (EditText) findViewById(R.id.signup_password);
-        message = (TextView) findViewById(R.id.signup_message);
+        usernameField = findViewById(R.id.signup_username);
+        passwordField = findViewById(R.id.signup_password);
+        message = findViewById(R.id.signup_message);
 
-        signUp = (Button) findViewById(R.id.signup_signup);
-        cancel = (Button) findViewById(R.id.signup_cancel);
+        signUp = findViewById(R.id.signup_signup);
+        cancel = findViewById(R.id.signup_cancel);
     }
 
-    // Dialog_sign in login button
+    /*
+     *  POST users/create
+     *
+     *  Register action button
+     */
+
     public void signUpOnClick(View v) {
 
         message.setTextColor(Color.rgb(194, 38, 38));

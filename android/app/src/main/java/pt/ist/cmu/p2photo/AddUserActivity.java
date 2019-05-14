@@ -1,7 +1,6 @@
 package pt.ist.cmu.p2photo;
 
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -12,18 +11,13 @@ import android.widget.Toast;
 
 import com.orhanobut.hawk.Hawk;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import pt.ist.cmu.api.ApiService;
 import pt.ist.cmu.api.RetrofitInstance;
 import pt.ist.cmu.cloud.DropboxActivity;
-import pt.ist.cmu.cloud.DropboxClientFactory;
-import pt.ist.cmu.cloud.UploadFileTask;
 import pt.ist.cmu.helpers.Constants;
-import pt.ist.cmu.helpers.StringGenerator;
 import pt.ist.cmu.models.Album;
 import pt.ist.cmu.models.Membership;
 import pt.ist.cmu.models.User;
@@ -98,10 +92,10 @@ public class AddUserActivity extends DropboxActivity {
             if (!memberUsername.equals(caller.getUsername())) {
                 showMember(memberUsername);
             }
-
             memberList.add(memberUsername);
         }
 
+        // show message in case of zero members
         if (album.getCatalogs().size() <= 1) {
             ownUsers.setText("You don't share this album with any user.");
         }
@@ -118,11 +112,7 @@ public class AddUserActivity extends DropboxActivity {
                         for (User user : response.body()) {
                             String username = user.getUsername();
                             if (!memberList.contains(username)) {
-                                CheckBox cb = new CheckBox(getApplicationContext());
-                                cb.setText(username);
-                                cb.setTextSize(16);
-                                userAddListLayout.addView(cb);
-                                checkboxList.add(cb);
+                                showUser(username);
                             }
                         }
 
@@ -148,6 +138,10 @@ public class AddUserActivity extends DropboxActivity {
 
     }
 
+    /*
+     *  Action function to add user
+     */
+
     public void addUserClick(View v) {
         addBtn.setEnabled(false);
         addBtn.setText("Adding...");
@@ -157,43 +151,22 @@ public class AddUserActivity extends DropboxActivity {
             final String username = cb.getText().toString();
 
             // loop through checkboxes
+            // check if checked and if user is not a member of the album already
             if (cb.isChecked() && !memberList.contains(username)) {
-
-                // create and upload new catalog
-                File catalog = new File(AddUserActivity.this.getFilesDir().getPath() + "/" + StringGenerator.generateName(25) + ".txt");
-                try {
-                    catalog.createNewFile();
-                } catch (IOException e) {
-                    Toast.makeText(getApplicationContext(), "Unable to create user catalog.", Toast.LENGTH_SHORT).show();
-                    continue;
-                }
-
-                String file_uri = Uri.fromFile(catalog).toString();
-
-                // upload catalog to dropbox
-                new UploadFileTask(this, DropboxClientFactory.getClient(), new UploadFileTask.Callback() {
-                    @Override
-                    public void onUploadComplete(String result) {
-                        addUser(username, result, cb);
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        Toast.makeText(AddUserActivity.this, "An error occurred when uploading catalog to Dropbox.", Toast.LENGTH_LONG).show();
-                    }
-                }).execute(file_uri, "");
-
+                // call addUser function
+                addUser(username, cb);
             }
         }
-
-        // TODO: delete catalog files
-
-        addBtn.setText("Add");
-        addBtn.setEnabled(true);
     }
 
-    private void addUser(final String username, final String catalog, final CheckBox cb) {
-        Call<Void> addUserCall = service.addUserToAlbum(token, album.getName(), username, catalog);
+    /*
+     *  GET album/<name>/user/<username>
+     *
+     *  Server call to add user to album
+     */
+
+    private void addUser(final String username, final CheckBox cb) {
+        Call<Void> addUserCall = service.addUserToAlbum(token, album.getName(), username);
 
         addUserCall.enqueue(new Callback<Void>() {
             @Override
@@ -209,7 +182,7 @@ public class AddUserActivity extends DropboxActivity {
 
                         // update album membership
                         List<Membership> newMembers = album.getCatalogs();
-                        newMembers.add(new Membership(username, catalog));
+                        newMembers.add(new Membership(username, "0"));
                         album.setCatalogs(newMembers);
 
                         // update album on preferences
@@ -217,6 +190,10 @@ public class AddUserActivity extends DropboxActivity {
 
                         // update text
                         ownUsers.setText("Users That You Share Ownership With:");
+
+                        // update add button
+                        addBtn.setEnabled(true);
+                        addBtn.setText("Add");
 
                         Toast.makeText(getApplicationContext(), "Users were added successfully.", Toast.LENGTH_SHORT).show();
                         break;
@@ -248,10 +225,11 @@ public class AddUserActivity extends DropboxActivity {
         });
     }
 
-    public void backOnClick(View v) {
-        finish();
-    }
+    /*
+     *  Auxiliary functions
+     */
 
+    // add member to textview
     private void showMember(String username) {
         TextView tv = new TextView(getApplicationContext());
         tv.setText(username);
@@ -261,7 +239,32 @@ public class AddUserActivity extends DropboxActivity {
         userOwnListLayout.addView(tv);
     }
 
+    // create checkbox to add users to album
+    private void showUser(String username) {
+        CheckBox cb = new CheckBox(getApplicationContext());
+        cb.setText(username);
+        cb.setTextSize(16);
+        userAddListLayout.addView(cb);
+        checkboxList.add(cb);
+    }
+
+    /*
+    *  Activity change function
+    */
+
+    public void backOnClick(View v) {
+        finish();
+    }
+
+    /*
+     *  Function called onResume()
+     *  Check out DropboxActivity
+     *
+     *  Unused
+     */
+
     @Override
     protected void loadData() {
     }
+
 }

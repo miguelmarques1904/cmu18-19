@@ -68,7 +68,7 @@ public class UploadFileTask extends AsyncTask<String, Void, String> {
                 // return downloadable link
                 String url = mDbxClient.sharing().createSharedLinkWithSettings(remoteFolderPath + "/" + remoteFileName).getUrl();
                 return url.substring(0, url.length() - 1) + "1";
-            } catch (DbxException | IOException e) {
+            } catch (Exception e) {
                 mException = e;
             }
         }

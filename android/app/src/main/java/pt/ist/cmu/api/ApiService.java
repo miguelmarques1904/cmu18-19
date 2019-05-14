@@ -32,14 +32,17 @@ public interface ApiService {
 
     @FormUrlEncoded
     @POST("album/create")
-    Call<Void> createAlbum(@Header("Authorization") String token, @Field("name") String name, @Field("catalog") String catalog);
+    Call<Void> createAlbum(@Header("Authorization") String token, @Field("name") String albumName);
 
-    @FormUrlEncoded
-    @POST("album/{name}/add/{username}")
-    Call<Void> addUserToAlbum(@Header("Authorization") String token, @Path("name") String name, @Path("username") String username, @Field("catalog") String catalog);
+    @GET("album/{name}/add/{username}")
+    Call<Void> addUserToAlbum(@Header("Authorization") String token, @Path("name") String albumName, @Path("username") String username);
 
     @GET("album/{name}")
-    Call<List<Membership>> getAlbum(@Header("Authorization") String token, @Path("name") String name);
+    Call<List<Membership>> getAlbum(@Header("Authorization") String token, @Path("name") String albumName);
+
+    @FormUrlEncoded
+    @POST("album/{name}")
+    Call<Void> updateAlbum(@Header("Authorization") String token, @Path("name") String albumName, @Field("catalog") String catalog);
 
     @GET("users/albums")
     Call<List<Album>> getUserAlbums(@Header("Authorization") String token);

@@ -1,13 +1,8 @@
 package pt.ist.cmu.p2photo;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -48,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
 
         this.mode = getIntent().getIntExtra("mode", 1);
 
+        // TODO: do something with this mode
+
         // initialize hawk
         Hawk.init(getApplicationContext()).build();
 
@@ -66,10 +63,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void signUpOnClick(View v) {
-        Intent signUpIntent = new Intent(MainActivity.this, SignUpActivity.class);
-        startActivity(signUpIntent);
-    }
+    /*
+     *  Log in or log out action
+     */
 
     public void logInMainOnClick(View v) {
         if (loggedIn) {
@@ -108,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-            // Remove user and album from shared preferences
+            // Remove user, album, dropbox from shared preferences
             Hawk.deleteAll();
 
             loggedIn = false;
@@ -120,16 +116,28 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /*
+     *  Intents to change activity
+     */
+
     public void createAlbumOnClick(View v) {
         Intent createAlbumIntent = new Intent(MainActivity.this, CreateAlbumActivity.class);
         startActivity(createAlbumIntent);
     }
 
-
     public void viewAlbumOnClick(View v) {
         Intent viewAlbumIntent = new Intent(MainActivity.this, ViewAlbumActivity.class);
         startActivity(viewAlbumIntent);
     }
+
+    public void signUpOnClick(View v) {
+        Intent signUpIntent = new Intent(MainActivity.this, SignUpActivity.class);
+        startActivity(signUpIntent);
+    }
+
+    /*
+     *  View appearance configuration
+     */
 
     public void loggedInView() {
         login.setText("Log Out");

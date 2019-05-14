@@ -34,7 +34,6 @@ public abstract class DropboxActivity extends AppCompatActivity {
 
     private void initAndLoadData(String accessToken) {
         DropboxClientFactory.init(accessToken);
-        PicassoClient.init(getApplicationContext(), DropboxClientFactory.getClient());
         loadData();
     }
 

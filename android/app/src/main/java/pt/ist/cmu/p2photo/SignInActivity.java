@@ -44,7 +44,12 @@ public class SignInActivity extends DropboxActivity {
         cancelBtn = findViewById(R.id.login_cancel);
     }
 
-    // Dialog_signin login button
+    /*
+     *  POST users/login
+     *
+     *  Login action button
+     */
+
     public void logInOnClick(View v) {
 
         message.setTextColor(Color.rgb(194, 38, 38));
@@ -83,6 +88,7 @@ public class SignInActivity extends DropboxActivity {
                                 );
                             } else {
                                 message.setText("You are logged in. You already signed in on Dropbox.");
+                                loginBtn.setEnabled(false);
                             }
 
                             break;
@@ -111,11 +117,22 @@ public class SignInActivity extends DropboxActivity {
         }
     }
 
+    /*
+     *  Function called onResume()
+     *  Check out DropboxActivity
+     */
+
     @Override
     protected void loadData() {
-        message.setText("Login to Dropbox was successful.");
-        loginBtn.setEnabled(false);
+        if (MainActivity.loggedIn) {
+            message.setText("Login to Dropbox was successful.");
+            loginBtn.setEnabled(false);
+        }
     }
+
+    /*
+     *  Activity change function
+     */
 
     public void logInCancelOnClick(View v) {
         finish();

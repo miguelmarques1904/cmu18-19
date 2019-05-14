@@ -42,6 +42,9 @@ public class ViewAlbumActivity extends AppCompatActivity {
 
         title = findViewById(R.id.viewalbum_title);
 
+        // initialize hawk
+        Hawk.init(getApplicationContext()).build();
+
         // get user from preferences
         User user = Hawk.get(Constants.CURRENT_USER_KEY);
 
@@ -71,12 +74,10 @@ public class ViewAlbumActivity extends AppCompatActivity {
                             btn.setText("Album " + albumName);
 
                             // send album name on intent
-                            btn.setOnClickListener(new View.OnClickListener() {
-                                public void onClick(View v) {
-                                    Intent manageAlbumIntent = new Intent(ViewAlbumActivity.this, ManageAlbumActivity.class);
-                                    manageAlbumIntent.putExtra(Constants.CURRENT_ALBUM_KEY, albumName);
-                                    startActivity(manageAlbumIntent);
-                                }
+                            btn.setOnClickListener(v -> {
+                                Intent manageAlbumIntent = new Intent(ViewAlbumActivity.this, ManageAlbumActivity.class);
+                                manageAlbumIntent.putExtra(Constants.CURRENT_ALBUM_KEY, albumName);
+                                startActivity(manageAlbumIntent);
                             });
 
                             albumLayout.addView(btn);
