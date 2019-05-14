@@ -54,6 +54,7 @@ import pt.ist.cmu.cloud.DropboxActivity;
 import pt.ist.cmu.cloud.DropboxClientFactory;
 import pt.ist.cmu.cloud.UploadFileTask;
 import pt.ist.cmu.helpers.Constants;
+import pt.ist.cmu.helpers.ImageHelper;
 import pt.ist.cmu.helpers.StringGenerator;
 import pt.ist.cmu.models.Album;
 import pt.ist.cmu.models.Membership;
@@ -65,17 +66,18 @@ import retrofit2.Response;
 public class ManageAlbumActivity extends DropboxActivity {
 
     private static final int PHOTOS_READ_PERMISSION = 1;
-    private static final String DOWNLOAD_CATALOG = "download";
+
+    private static final String DOWNLOAD_CATALOG = "downloadCatalog";
     private static final String UPDATE_CATALOG = "update";
+    private static final String DOWNLOAD_PICTURE = "downloadPicture";
 
     private User user;
+
+    private int mode;
 
     private Fetch fetch;
     private FetchListener fetchListener;
     private FetchConfiguration fetchConfiguration;
-
-    private Request downloadRequest;
-    private Request updateRequest;
 
     private ApiService service;
 
@@ -108,6 +110,15 @@ public class ManageAlbumActivity extends DropboxActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_managealbum);
 
+        // initialize hawk
+        Hawk.init(getApplicationContext()).build();
+
+        // get app mode
+        mode = Hawk.get(Constants.APP_MODE);
+
+        // get current user
+        user = Hawk.get(Constants.CURRENT_USER_KEY);
+
         if (getIntent().getStringExtra(Constants.CURRENT_ALBUM_KEY) != null) {
             album = new Album(getIntent().getStringExtra(Constants.CURRENT_ALBUM_KEY));
         } else if (Hawk.contains(Constants.CURRENT_ALBUM_KEY)) {
@@ -132,12 +143,6 @@ public class ManageAlbumActivity extends DropboxActivity {
         imageParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         imageParams.setMargins(0,0,0,20);
 
-        // initialize hawk
-        Hawk.init(getApplicationContext()).build();
-
-        // get token
-        user = Hawk.get(Constants.CURRENT_USER_KEY);
-
         // configure api service
         service = RetrofitInstance.getRetrofitInstance().create(ApiService.class);
 
@@ -145,15 +150,7 @@ public class ManageAlbumActivity extends DropboxActivity {
         fetchConfiguration = new FetchConfiguration.Builder(ManageAlbumActivity.this)
                 .setDownloadConcurrentLimit(3)
                 .build();
-    }
 
-    /*
-     *  Function called onResume()
-     *  Check out DropboxActivity
-     */
-
-    @Override
-    protected void loadData() {
         // configure fetch
         configureFetch();
 
@@ -184,14 +181,14 @@ public class ManageAlbumActivity extends DropboxActivity {
                                 if (!url.equals("0")) {
                                     String file = ManageAlbumActivity.this.getFilesDir().getPath() + "/" + StringGenerator.generateName(5);
 
-                                    downloadRequest = new Request(url, file);
-                                    downloadRequest.setPriority(Priority.HIGH);
-                                    downloadRequest.setNetworkType(NetworkType.ALL);
-                                    downloadRequest.setTag(DOWNLOAD_CATALOG);
+                                    Request request = new Request(url, file);
+                                    request.setPriority(Priority.HIGH);
+                                    request.setNetworkType(NetworkType.ALL);
+                                    request.setTag(DOWNLOAD_CATALOG);
 
-                                    fetch.enqueue(downloadRequest, updatedRequest -> {
+                                    fetch.enqueue(request, updatedRequest -> {
                                         // request was enqueued for download
-                                        Log.d("state", "catalog download was enqueued");
+                                        System.out.println("Catalog download was enqueued");
                                     }, error -> {
                                         Toast.makeText(getApplicationContext(), "Could not download catalog.", Toast.LENGTH_LONG).show();
                                     });
@@ -236,37 +233,48 @@ public class ManageAlbumActivity extends DropboxActivity {
             // get photo URI from gallery
             Uri imageURI = data.getData();
 
-            // get catalog for user
-            String userCatalog = getCatalogURLForUser(user.getUsername());
+            // add to list and re-configure layout
+            photoList.add(imageURI.toString());
+            configureLayout();
 
-            boolean catalogExists = !userCatalog.equals("0");
+            if (mode == Constants.APP_MODE_CLOUD) {
+                // get catalog for user
+                String userCatalog = getCatalogURLForUser(user.getUsername());
+                boolean catalogExists = !userCatalog.equals("0");
 
-            // show uploading message
-            Toast.makeText(ManageAlbumActivity.this, "Uploading...", Toast.LENGTH_LONG).show();
+                // show uploading message
+                // Toast.makeText(ManageAlbumActivity.this, "Uploading...", Toast.LENGTH_LONG).show();
+                System.out.println("Uploading picture");
 
-            // upload picture
-            new UploadFileTask(this, DropboxClientFactory.getClient(), new UploadFileTask.Callback() {
-                @Override
-                public void onUploadComplete(String result) {
-                    photoList.add(result);
+                // upload picture
+                new UploadFileTask(this, DropboxClientFactory.getClient(), new UploadFileTask.Callback() {
+                    @Override
+                    public void onUploadComplete(String result) {
+                        System.out.println("Uploading picture complete");
 
-                    configureLayout();
-
-                    if (!catalogExists) {
-                        // create catalog and upload
-                        String uri = createCatalog(result);
-                        uploadCatalog(uri);
-                    } else {
-                        // retrieve, edit and upload catalog
-                        downloadCatalog(result);
+                        if (!catalogExists) {
+                            // create catalog and upload
+                            System.out.println("Starting to create catalog");
+                            String uri = createCatalog(result);
+                            uploadCatalog(uri);
+                        } else {
+                            // retrieve, edit and upload catalog
+                            System.out.println("Starting to download catalog");
+                            downloadCatalog(result);
+                        }
                     }
-                }
 
-                @Override
-                public void onError(Exception e) {
-                    Toast.makeText(ManageAlbumActivity.this, "An error occurred when uploading image to Dropbox.", Toast.LENGTH_LONG).show();
-                }
-            }).execute(imageURI.toString(), "");
+                    @Override
+                    public void onError(Exception e) {
+                        Toast.makeText(ManageAlbumActivity.this, "An error occurred when uploading image to Dropbox.", Toast.LENGTH_LONG).show();
+                    }
+                }).execute(imageURI.toString(), "");
+
+            } else if (mode == Constants.APP_MODE_WIFI_DIRECT) {
+                // TODO: WIFI-DIRECT
+                // upload the picture to the device where
+                // it should go
+            }
         }
     }
 
@@ -277,49 +285,38 @@ public class ManageAlbumActivity extends DropboxActivity {
 
     private void configureLayout() {
         for (; numPhotos < photoList.size(); numPhotos++) {
-            String url = photoList.get(numPhotos);
+            String path = photoList.get(numPhotos);
+            Uri uri = Uri.parse(path);
 
-            ImageView iv = new ImageView(this);
-            iv.setAdjustViewBounds(true);
-            iv.setLayoutParams(imageParams);
+            Bitmap b = ImageHelper.getBitmapFromURI(uri, this.getContentResolver());
 
-            Picasso.get().load(url).into(iv, new com.squareup.picasso.Callback() {
-                @Override
-                public void onSuccess() {
-                    // get bitmap
-                    Bitmap image = ((BitmapDrawable)iv.getDrawable()).getBitmap();
+            if (b != null) {
+                // This works because column widths are equal
+                double imageRatio = (double) b.getHeight() / b.getWidth();
 
-                    // serialize bitmap
-                    ByteArrayOutputStream bStream = new ByteArrayOutputStream();
-                    image.compress(Bitmap.CompressFormat.JPEG, 100, bStream);
-                    byte[] bitmap = bStream.toByteArray();
+                ImageView iv = new ImageView(this);
+                iv.setImageBitmap(b); // Change this to photoList elements
+                iv.setAdjustViewBounds(true);
+                iv.setLayoutParams(imageParams);
 
-                    iv.setOnClickListener(v -> {
-                        Intent viewPhotoIntent = new Intent(ManageAlbumActivity.this, ViewPhotoActivity.class);
-                        viewPhotoIntent.putExtra("bitmap", bitmap);
-                        startActivity(viewPhotoIntent);
-                    });
+                iv.setOnClickListener(v -> {
+                    Intent viewPhotoIntent = new Intent(ManageAlbumActivity.this, ViewPhotoActivity.class);
+                    viewPhotoIntent.putExtra("photoURI", uri.toString());
+                    startActivity(viewPhotoIntent);
+                });
+
+                // Add photo to column with the smallest height
+                double minColHeight = Math.min(Math.min(col1Height, col2Height), col3Height);
+                if (minColHeight == col1Height) {
+                    col1.addView(iv);
+                    col1Height += imageRatio;
+                } else if (minColHeight == col2Height) {
+                    col2.addView(iv);
+                    col2Height += imageRatio;
+                } else {
+                    col3.addView(iv);
+                    col3Height += imageRatio;
                 }
-
-                @Override
-                public void onError(Exception e) {
-                }
-            });
-
-            // This works because column widths are equal
-            double imageRatio = (double) iv.getHeight() / iv.getWidth();
-
-            // Add photo to column with the smallest height
-            double minColHeight = Math.min(Math.min(col1Height, col2Height), col3Height);
-            if (minColHeight == col1Height) {
-                col1.addView(iv);
-                col1Height += imageRatio;
-            } else if (minColHeight == col2Height) {
-                col2.addView(iv);
-                col2Height += imageRatio;
-            } else {
-                col3.addView(iv);
-                col3Height += imageRatio;
             }
         }
     }
@@ -366,6 +363,8 @@ public class ManageAlbumActivity extends DropboxActivity {
             BufferedWriter writer = new BufferedWriter(new FileWriter(catalog));
             writer.write(pictureURL);
             writer.close();
+
+            System.out.println("Catalog file created");
         } catch (IOException e) {
             Toast.makeText(getApplicationContext(), "Unable to create user catalog.", Toast.LENGTH_SHORT).show();
         }
@@ -375,43 +374,84 @@ public class ManageAlbumActivity extends DropboxActivity {
 
     // upload catalog to dropbox
     private void uploadCatalog(String catalogURI) {
-        Toast.makeText(getApplicationContext(), "Updating catalog...", Toast.LENGTH_SHORT).show();
+        System.out.println("Uploading catalog");
 
-        new UploadFileTask(this, DropboxClientFactory.getClient(), new UploadFileTask.Callback() {
-            @Override
-            public void onUploadComplete(String result) {
-                // update on p2photo server
-                updateServerCatalog(result);
-            }
+        if (mode == Constants.APP_MODE_CLOUD) {
+            new UploadFileTask(this, DropboxClientFactory.getClient(), new UploadFileTask.Callback() {
+                @Override
+                public void onUploadComplete(String result) {
+                    // update on p2photo server
+                    System.out.println("Catalog upload complete");
+                    updateServerCatalog(result);
+                }
 
-            @Override
-            public void onError(Exception e) {
-                Toast.makeText(ManageAlbumActivity.this, "An error occurred when uploading catalog to Dropbox.", Toast.LENGTH_LONG).show();
-            }
-        }).execute(catalogURI, "");
+                @Override
+                public void onError(Exception e) {
+                    Toast.makeText(ManageAlbumActivity.this, "An error occurred when uploading catalog to Dropbox.", Toast.LENGTH_LONG).show();
+                }
+            }).execute(catalogURI, "");
+        } else if (mode == Constants.APP_MODE_WIFI_DIRECT) {
+            // TODO: WIFI-DIRECT upload catalog
+            // How: find out where to upload the
+            // catalog to or simply keep it
+        }
     }
 
-    // download catalog from dropbox (using fetch)
+    // download catalog from dropbox (using fetch) or using wifi-direct
     private void downloadCatalog(String pictureURL) {
-        String file = ManageAlbumActivity.this.getFilesDir().getPath() + "/" + StringGenerator.generateName(25) + ".txt";
-        String url = getCatalogURLForUser(user.getUsername());
+        if (mode == Constants.APP_MODE_CLOUD) {
+            String file = ManageAlbumActivity.this.getFilesDir().getPath() + "/" + StringGenerator.generateName(25) + ".txt";
+            String url = getCatalogURLForUser(user.getUsername());
 
-        updateRequest = new Request(url, file);
-        updateRequest.setPriority(Priority.HIGH);
-        updateRequest.setNetworkType(NetworkType.ALL);
-        updateRequest.setTag(UPDATE_CATALOG);
+            Request request = new Request(url, file);
+            request.setPriority(Priority.HIGH);
+            request.setNetworkType(NetworkType.ALL);
+            request.setTag(UPDATE_CATALOG);
 
-        Map<String, String> extras = new HashMap<>();
-        extras.put("url", pictureURL);
+            Map<String, String> extras = new HashMap<>();
+            extras.put("url", pictureURL);
 
-        updateRequest.setExtras(new Extras(extras));
+            request.setExtras(new Extras(extras));
 
-        fetch.enqueue(updateRequest, updatedRequest -> {
-            // request was enqueued for download
-            Log.d("state", "catalog update was enqueued");
-        }, error -> {
-            Toast.makeText(getApplicationContext(), "Could not download catalog.", Toast.LENGTH_LONG).show();
-        });
+            fetch.enqueue(request, updatedRequest -> {
+                // request was enqueued for download
+                System.out.println("Catalog download was enqueued");
+            }, error -> {
+                Toast.makeText(getApplicationContext(), "Could not download catalog.", Toast.LENGTH_LONG).show();
+            });
+        } else if (mode == Constants.APP_MODE_WIFI_DIRECT) {
+            // TODO: WIFI-DIRECT download catalog
+            // How: find the catalog and download it
+            // to a file on the device
+        }
+    }
+
+    // download pictures from dropbox or using wifi-direct
+    private void downloadPicture(String url) {
+        System.out.println("Download picture was called");
+        if (mode == Constants.APP_MODE_CLOUD) {
+            String picture = ManageAlbumActivity.this.getFilesDir().getPath() + "/" + StringGenerator.generateName(10) + ".jpg";
+
+            Request request = new Request(url, picture);
+            request.setPriority(Priority.HIGH);
+            request.setNetworkType(NetworkType.ALL);
+            request.setTag(DOWNLOAD_PICTURE);
+
+            fetch.enqueue(request, updatedRequest -> {
+                // request was enqueued for download
+                System.out.println("Picture download was enqueued");
+            }, error -> {
+                System.out.println("Could not download picture");
+            });
+        } else if (mode == Constants.APP_MODE_WIFI_DIRECT) {
+            // TODO: WIFI-DIRECT download pictures
+            // HOW: get and store them on the phone
+            // get their URIs (on the file system)
+            // and add the URIs to photoList
+            //
+            // remember to call configureLayout() after the
+            // URI has been added to photoList
+        }
     }
 
     // update catalog on p2photo server
@@ -426,7 +466,18 @@ public class ManageAlbumActivity extends DropboxActivity {
             public void onResponse(Call<Void> memberCall, Response<Void> response) {
                 switch (response.code()) {
                     case 200:
-                        // successful
+                        System.out.println("Server update catalog successful");
+                        List<Membership> aux = album.getCatalogs();
+                        for (int i = 0; i < album.getCatalogs().size(); i++) {
+                            if (album.getCatalogs().get(i).getUsername().equals(user.getUsername())) {
+                                aux.set(i, new Membership(user.getUsername(), catalogURL));
+                            }
+                        }
+                        album.setCatalogs(aux);
+
+                        System.out.println("Added catalog: " + getCatalogURLForUser(user.getUsername()));
+
+                        Hawk.put(Constants.CURRENT_ALBUM_KEY, album);
                         break;
                     case 400:
                         Toast.makeText(getApplicationContext(), "Catalog URL is invalid.", Toast.LENGTH_SHORT).show();
@@ -481,39 +532,57 @@ public class ManageAlbumActivity extends DropboxActivity {
             @Override
             public void onCompleted(@NotNull Download download) {
                 String tag = download.getTag();
-                File file = new File(download.getFile());
 
-                String url = download.getExtras().getString("url", "0");
+                File file = new File(download.getFile());
+                String absolutePath = Uri.fromFile(file).toString();
 
                 if (tag.equals(DOWNLOAD_CATALOG)) {
                     try {
+                        System.out.println("Downloaded one catalog to read");
                         Scanner sc = new Scanner(file);
 
                         // read url photos
-                        // add to imageLinks to download
+                        // call downloadPicture
                         while (sc.hasNextLine()) {
-                            photoList.add(sc.nextLine());
+                            String aux = sc.nextLine();
+                            System.out.println("Picture URL: " + aux);
+                            downloadPicture(aux);
                         }
+
+                        sc.close();
+
+                        System.out.println("Read the catalog");
                     } catch (Exception e) {
                         Toast.makeText(getApplicationContext(), "Cannot read catalog file", Toast.LENGTH_SHORT).show();
-                        e.printStackTrace();
-                    } finally {
-                        file.delete();
+                        // e.printStackTrace();
                     }
-
-                    configureLayout();
                 } else if (tag.equals(UPDATE_CATALOG)) {
-                    try {
-                        BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
+                    String url = download.getExtras().getString("url", "0");
 
-                        bw.write('\n' + url);
+                    try {
+                        System.out.println("Downloaded one catalog to update");
+
+                        // decrypt catalog
+
+                        BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
+                        bw.write("\n" + url);
                         bw.close();
+
+                        // encrypt catalog
+
+                        System.out.println("Edited the catalog");
 
                         // upload back to dropbox
                         uploadCatalog(Uri.fromFile(file).toString());
                     } catch (Exception e) {
                         Toast.makeText(getApplicationContext(), "Cannot write to catalog file", Toast.LENGTH_SHORT).show();
                     }
+                } else if (tag.equals(DOWNLOAD_PICTURE)) {
+                    // get URI and add to list
+                    System.out.println("Downloaded one picture");
+                    photoList.add(absolutePath);
+
+                    configureLayout();
                 }
             }
             @Override
@@ -545,6 +614,17 @@ public class ManageAlbumActivity extends DropboxActivity {
         };
 
         fetch.addListener(fetchListener);
+    }
+
+    /*
+     *  Function called onResume()
+     *  Check out DropboxActivity
+     *
+     *  Unused
+     */
+
+    @Override
+    protected void loadData() {
     }
 
     /*

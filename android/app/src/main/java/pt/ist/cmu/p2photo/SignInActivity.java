@@ -24,6 +24,8 @@ public class SignInActivity extends DropboxActivity {
     private String username;
     private String password;
 
+    private int mode;
+
     EditText usernameField;
     EditText passwordField;
     TextView message;
@@ -42,6 +44,8 @@ public class SignInActivity extends DropboxActivity {
 
         loginBtn = findViewById(R.id.login_login);
         cancelBtn = findViewById(R.id.login_cancel);
+
+        mode = Hawk.get(Constants.APP_MODE);
     }
 
     /*
@@ -77,18 +81,27 @@ public class SignInActivity extends DropboxActivity {
                             // save user on shared preferences (hawk)
                             Hawk.put(Constants.CURRENT_USER_KEY, user);
 
-                            if (!hasToken()) {
-                                message.setText("You are logged in. You will be redirected to Dropbox to login.");
-                                new java.util.Timer().schedule( new java.util.TimerTask() {
-                                        @Override
-                                        public void run() {
-                                            Auth.startOAuth2Authentication(SignInActivity.this, Constants.DROPBOX_APP_KEY);
-                                        }
-                                    }, 2000
-                                );
-                            } else {
-                                message.setText("You are logged in. You already signed in on Dropbox.");
+                            // check app mode
+                            if (mode == Constants.APP_MODE_CLOUD) {
+                                if (!hasToken()) {
+                                    message.setText("You are logged in. You will be redirected to Dropbox to login.");
+                                    new java.util.Timer().schedule( new java.util.TimerTask() {
+                                            @Override
+                                            public void run() {
+                                                Auth.startOAuth2Authentication(SignInActivity.this, Constants.DROPBOX_APP_KEY);
+                                            }
+                                        }, 2000
+                                    );
+                                } else {
+                                    message.setText("You are logged in. You already signed in on Dropbox.");
+                                    loginBtn.setEnabled(false);
+                                }
+                            } else if (mode == Constants.APP_MODE_WIFI_DIRECT) {
+                                message.setText("You are now logged in.");
                                 loginBtn.setEnabled(false);
+
+                                // TODO: WIFI-DIRECT (maybe) create credentials
+                                // initialize data for wifi-direct to work
                             }
 
                             break;
@@ -110,7 +123,7 @@ public class SignInActivity extends DropboxActivity {
                 }
             });
 
-        } else if (MainActivity.loggedIn) {
+        } else if (Hawk.contains(Constants.CURRENT_USER_KEY)) {
             message.setText("You are already logged in.");
         } else {
             message.setText("Username and/or password are empty.");
@@ -124,7 +137,7 @@ public class SignInActivity extends DropboxActivity {
 
     @Override
     protected void loadData() {
-        if (MainActivity.loggedIn) {
+        if (MainActivity.loggedIn && mode == Constants.APP_MODE_CLOUD) {
             message.setText("Login to Dropbox was successful.");
             loginBtn.setEnabled(false);
         }

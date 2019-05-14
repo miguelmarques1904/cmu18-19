@@ -19,12 +19,7 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    protected static final int MODE_CLOUD = 1;
-    protected static final int MODE_WIFI_DIRECT = 2;
-
     public static boolean loggedIn = false;
-
-    private int mode;
 
     Button signUp;
     Button login;
@@ -41,16 +36,14 @@ public class MainActivity extends AppCompatActivity {
         createAlbum = findViewById(R.id.main_createAlbum);
         viewAlbum = findViewById(R.id.main_viewAlbum);
 
-        this.mode = getIntent().getIntExtra("mode", 1);
-
-        // TODO: do something with this mode
-
         // initialize hawk
         Hawk.init(getApplicationContext()).build();
 
         // check if logged in already (preferences)
         if (Hawk.contains(Constants.CURRENT_USER_KEY)) {
             loggedIn = true;
+        } else {
+            loggedIn = false;
         }
     }
 
@@ -69,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void logInMainOnClick(View v) {
         if (loggedIn) {
-
             // Get token
             User user = Hawk.get(Constants.CURRENT_USER_KEY);
             String token = "Token " + user.getToken();
@@ -105,7 +97,10 @@ public class MainActivity extends AppCompatActivity {
             });
 
             // Remove user, album, dropbox from shared preferences
-            Hawk.deleteAll();
+            Hawk.delete(Constants.CURRENT_USER_KEY);
+            Hawk.delete(Constants.CURRENT_ALBUM_KEY);
+            Hawk.delete(Constants.DROPBOX_TOKEN_KEY);
+            Hawk.delete(Constants.DROPBOX_UID_KEY);
 
             loggedIn = false;
             loggedOutView();

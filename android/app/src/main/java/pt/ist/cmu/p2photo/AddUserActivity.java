@@ -143,9 +143,6 @@ public class AddUserActivity extends DropboxActivity {
      */
 
     public void addUserClick(View v) {
-        addBtn.setEnabled(false);
-        addBtn.setText("Adding...");
-
         for (final CheckBox cb : checkboxList) {
             // get username from checkbox
             final String username = cb.getText().toString();
@@ -153,6 +150,10 @@ public class AddUserActivity extends DropboxActivity {
             // loop through checkboxes
             // check if checked and if user is not a member of the album already
             if (cb.isChecked() && !memberList.contains(username)) {
+                // change button appearance
+                addBtn.setEnabled(false);
+                addBtn.setText("Adding...");
+
                 // call addUser function
                 addUser(username, cb);
             }

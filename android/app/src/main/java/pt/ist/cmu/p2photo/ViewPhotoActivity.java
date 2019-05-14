@@ -20,14 +20,14 @@ public class ViewPhotoActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_viewphoto);
 
-        // extract bytes and convert to bitmap
-        byte[] image = getIntent().getByteArrayExtra("bitmap");
-        Bitmap bmp = BitmapFactory.decodeByteArray(image, 0, image.length);
+        Uri uri = Uri.parse(getIntent().getStringExtra("photoURI"));
+        Bitmap bitmap = ImageHelper.getBitmapFromURI(uri, this.getContentResolver());
 
-        // create image view and load picture
-        ImageView iv = findViewById(R.id.viewphoto_image);
-        iv.setImageBitmap(bmp);
-        iv.setAdjustViewBounds(true);
+        if (bitmap != null) {
+            ImageView iv = findViewById(R.id.viewphoto_image);
+            iv.setImageBitmap(bitmap);
+            iv.setAdjustViewBounds(true);
+        }
     }
 
     public void viewPhotoBackOnClick(View v) {
