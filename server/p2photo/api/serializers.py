@@ -24,7 +24,7 @@ class CatalogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Membership
-        fields = ('user', 'catalog',)
+        fields = ('user', 'catalog', 'key')
 
 # album representation
 class AlbumListingField(serializers.RelatedField):

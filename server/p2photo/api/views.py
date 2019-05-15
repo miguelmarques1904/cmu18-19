@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate
 from django.db import IntegrityError
 from django.core.files import File
 
-from random import randint
+import random
 import os
 
 from django.core.validators import URLValidator, slug_re
@@ -18,6 +18,8 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 
 from .serializers import *
+
+ALPHANUMERIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvxyz"
 
 ### USERS ###
 
@@ -109,7 +111,7 @@ class CreateAlbumView(generics.CreateAPIView):
         # save album and membership on database
         try:
             album = Album.objects.create(name = name)
-            membership = Membership.objects.create(album = album, user = user, catalog = "0")
+            membership = Membership.objects.create(album = album, user = user, catalog = "0", key = generate_key())
 
             # open and write url to album catalog file
             open("catalogs/catalog_" + name, 'a').close()
@@ -150,7 +152,7 @@ class AddUserView(generics.CreateAPIView):
 
         # add membership
         try:
-            membership = Membership.objects.create(album = album, user = add_user, catalog = "0")
+            membership = Membership.objects.create(album = album, user = add_user, catalog = "0", key = generate_key())
         except Exception as e:
             return Response({"error": str(e)}, status = status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -244,3 +246,7 @@ def validate_catalog(url):
         return False
 
     return True
+
+def generate_key():
+    key = ''.join(random.choice(ALPHANUMERIC) for _ in range(64))
+    return key
