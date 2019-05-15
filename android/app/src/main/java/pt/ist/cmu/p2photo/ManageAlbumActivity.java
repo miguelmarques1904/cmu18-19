@@ -34,6 +34,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -177,6 +178,11 @@ public class ManageAlbumActivity extends DropboxActivity {
                                     request.setPriority(Priority.HIGH);
                                     request.setNetworkType(NetworkType.ALL);
                                     request.setTag(DOWNLOAD_CATALOG);
+
+                                    Map<String, String> extras = new HashMap<>();
+                                    extras.put("key", m.getKey());
+
+                                    request.setExtras(new Extras(extras));
 
                                     fetch.enqueue(request, updatedRequest -> {
                                         // request was enqueued for download
@@ -352,7 +358,9 @@ public class ManageAlbumActivity extends DropboxActivity {
             Toast.makeText(getApplicationContext(), "Unable to create user catalog.", Toast.LENGTH_SHORT).show();
         }
 
-        return Uri.fromFile(catalog).toString();
+        File encryptedCatalog = encryptCatalog(catalog,getMembershipForUser(user.getUsername()).getKey());
+
+        return Uri.fromFile(encryptedCatalog).toString();
     }
 
     // upload catalog to dropbox or use wifi-direct
@@ -478,14 +486,14 @@ public class ManageAlbumActivity extends DropboxActivity {
         });
     }
 
-    // encrypt catalog using ...
-    private void encryptCatalog(String uri) {
-
+    // encrypt catalog
+    private File encryptCatalog(File file, String key) {
+        return file;
     }
 
     // decrypt catalog
-    private File decryptCatalog(String uri) {
-        return null;
+    private File decryptCatalog(File file, String key) {
+        return file;
     }
 
     // get catalog URL that belongs to a user
@@ -514,8 +522,13 @@ public class ManageAlbumActivity extends DropboxActivity {
                 String absolutePath = Uri.fromFile(file).toString();
 
                 if (tag.equals(DOWNLOAD_CATALOG)) {
+                    String key = download.getExtras().getString("key", getMembershipForUser(user.getUsername()).getKey());
+
                     try {
-                        Scanner sc = new Scanner(file);
+                        // decrypt catalog
+                        File decryptedFile = decryptCatalog(file, key);
+
+                        Scanner sc = new Scanner(decryptedFile);
 
                         // read url photos
                         // call downloadPicture
@@ -530,19 +543,24 @@ public class ManageAlbumActivity extends DropboxActivity {
                     }
                 } else if (tag.equals(UPDATE_CATALOG)) {
                     String url = download.getExtras().getString("url", "0");
+                    String key = getMembershipForUser(user.getUsername()).getKey();
 
                     try {
                         // decrypt catalog
+                        File decryptedFile = decryptCatalog(file, key);
 
                         // add photo URL
-                        BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
+                        FileWriter fw = new FileWriter(decryptedFile, true);
+                        BufferedWriter bw = new BufferedWriter(fw);
                         bw.write("\n" + url);
                         bw.close();
+                        fw.close();
 
                         // encrypt catalog
+                        File encryptedFile = encryptCatalog(file, key);
 
                         // upload back to dropbox
-                        uploadCatalog(Uri.fromFile(file).toString());
+                        uploadCatalog(Uri.fromFile(encryptedFile).toString());
                     } catch (Exception e) {
                         Toast.makeText(getApplicationContext(), "Cannot edit catalog file", Toast.LENGTH_SHORT).show();
                     }
