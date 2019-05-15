@@ -41,18 +41,3 @@ When calling methods that require user authentication, remember to add the follo
 ```
 Authorization: Token <auth_token>
 ```
-
-#### P2Photo Server API Calls
-
-All calls (except register and login) require user authentication with a valid token received upon login.
-
-| API Call  | Description |
-| ------------- | ------------- |
-| POST /users/register  | Registers a new user  |
-| POST /users/login  | Logs in an existing user and returns an auth token  |
-| GET /users/logout  | Logs out an user |
-| GET /users  | Returns all the existing users  |
-| POST /album/create  | Creates an album and returns its ID  |
-| POST /album/\<name\>/add/\<username\>  | Add user \<username\> to the membership of album \<name\>  |
-| GET /album/\<name\> | Returns all the catalog data for album \<id\>  |
-| GET /album/user/\<username\>  | Returns all the album of which user \<username\> is member  |
