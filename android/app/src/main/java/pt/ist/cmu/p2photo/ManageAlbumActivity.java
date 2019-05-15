@@ -229,7 +229,7 @@ public class ManageAlbumActivity extends DropboxActivity {
 
             if (mode == Constants.APP_MODE_CLOUD) {
                 // get catalog for user
-                String userCatalog = getCatalogURLForUser(user.getUsername());
+                String userCatalog = getMembershipForUser(user.getUsername()).getCatalog();
                 boolean catalogExists = !userCatalog.equals("0");
 
                 // show uploading message
@@ -384,7 +384,7 @@ public class ManageAlbumActivity extends DropboxActivity {
     private void downloadCatalog(String pictureURL) {
         if (mode == Constants.APP_MODE_CLOUD) {
             String file = ManageAlbumActivity.this.getFilesDir().getPath() + "/" + StringGenerator.generateName(25);
-            String url = getCatalogURLForUser(user.getUsername());
+            String url = getMembershipForUser(user.getUsername()).getCatalog();
 
             Request request = new Request(url, file);
             request.setPriority(Priority.HIGH);
@@ -489,13 +489,13 @@ public class ManageAlbumActivity extends DropboxActivity {
     }
 
     // get catalog URL that belongs to a user
-    private String getCatalogURLForUser(String username) {
+    private Membership getMembershipForUser(String username) {
         for (Membership m : album.getCatalogs()) {
             if (m.getUsername().equals(username)) {
-                return m.getCatalog();
+                return m;
             }
         }
-        return "";
+        return null;
     }
 
     /*

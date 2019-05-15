@@ -25,7 +25,7 @@ public class ModeSelectionActivity extends AppCompatActivity {
     }
 
     public void cloudOnClick(View v) {
-        Hawk.deleteAll();
+        //Hawk.deleteAll();
         Hawk.put(Constants.APP_MODE, Constants.APP_MODE_CLOUD);
         startActivity(intent);
     }

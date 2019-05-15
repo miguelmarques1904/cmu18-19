@@ -10,6 +10,9 @@ public class Membership {
     @SerializedName("catalog")
     private String catalog;
 
+    @SerializedName("key")
+    private String key;
+
     public Membership(String username, String catalog) {
         this.username = username;
         this.catalog = catalog;
@@ -29,6 +32,14 @@ public class Membership {
 
     public void setCatalog(String catalog) {
         this.catalog = catalog;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 
     @Override
