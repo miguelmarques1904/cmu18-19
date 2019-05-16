@@ -5,7 +5,9 @@ P2Photo. Made for Android 5.0+
 ## App
 
 - To run the app, go to *pt.ist.cmu.helpers.Constants* and set the IP Addess in the BASE_URL
-- Also, go to *res/xml/network_security_config.xml* and add the IP Address of the API Endpoint (this is a temporary measure)
+- Also, go to *res/xml/network_security_config.xml* and add the IP Address of the API Endpoint
+
+*Note:* Don't forget to set DNS on host computer to 8.8.8.8 / 8.8.4.4 for the emulator to be able to access the internet and to configure the firewall appropriately 
 
 ## Server
 
