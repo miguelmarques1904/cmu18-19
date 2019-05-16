@@ -18,7 +18,7 @@ public class ViewPhotoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_viewphoto);
 
         Uri uri = Uri.parse(getIntent().getStringExtra("photoURI"));
-        Bitmap bitmap = ImageHelper.getBitmapFromURI(uri, this.getContentResolver());
+        Bitmap bitmap = ImageHelper.getBitmapFromURI(ViewPhotoActivity.this, uri);
 
         if (bitmap != null) {
             ImageView iv = findViewById(R.id.viewphoto_image);

@@ -183,7 +183,7 @@ public class AddUserActivity extends DropboxActivity {
 
                         // update album membership
                         List<Membership> newMembers = album.getCatalogs();
-                        newMembers.add(new Membership(username, "0"));
+                        newMembers.add(new Membership(username, "0", "0"));
                         album.setCatalogs(newMembers);
 
                         // update album on preferences

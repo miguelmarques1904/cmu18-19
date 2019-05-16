@@ -35,13 +35,25 @@ import org.jetbrains.annotations.Nullable;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESKeySpec;
 
 import pt.ist.cmu.api.ApiService;
 import pt.ist.cmu.api.RetrofitInstance;
@@ -50,7 +62,9 @@ import pt.ist.cmu.cloud.DropboxClientFactory;
 import pt.ist.cmu.cloud.UploadFileTask;
 import pt.ist.cmu.helpers.Constants;
 import pt.ist.cmu.helpers.ImageHelper;
+import pt.ist.cmu.helpers.SecurityHelper;
 import pt.ist.cmu.helpers.StringGenerator;
+import pt.ist.cmu.helpers.UriHelper;
 import pt.ist.cmu.models.Album;
 import pt.ist.cmu.models.Membership;
 import pt.ist.cmu.models.User;
@@ -228,6 +242,10 @@ public class ManageAlbumActivity extends DropboxActivity {
         if (requestCode == GET_FROM_GALLERY && resultCode == Activity.RESULT_OK) {
             // get photo URI from gallery
             Uri imageURI = data.getData();
+            File image = UriHelper.getFileForUri(ManageAlbumActivity.this, imageURI);
+
+            // encrypt image
+            File encryptedImage = SecurityHelper.encryptFile(ManageAlbumActivity.this, image, getMembershipForUser(user.getUsername()).getKey());
 
             // add to list and re-configure layout
             photoList.add(imageURI.toString());
@@ -242,7 +260,7 @@ public class ManageAlbumActivity extends DropboxActivity {
                 Toast.makeText(ManageAlbumActivity.this, "Uploading...", Toast.LENGTH_LONG).show();
 
                 // upload picture
-                new UploadFileTask(this, DropboxClientFactory.getClient(), new UploadFileTask.Callback() {
+                new UploadFileTask(ManageAlbumActivity.this, DropboxClientFactory.getClient(), new UploadFileTask.Callback() {
                     @Override
                     public void onUploadComplete(String result) {
                         if (!catalogExists) {
@@ -259,7 +277,7 @@ public class ManageAlbumActivity extends DropboxActivity {
                     public void onError(Exception e) {
                         Toast.makeText(ManageAlbumActivity.this, "An error occurred when uploading image to Dropbox.", Toast.LENGTH_LONG).show();
                     }
-                }).execute(imageURI.toString(), "");
+                }).execute(Uri.fromFile(encryptedImage).toString(), "");
 
             } else if (mode == Constants.APP_MODE_WIFI_DIRECT) {
                 // TODO: WIFI-DIRECT
@@ -279,7 +297,7 @@ public class ManageAlbumActivity extends DropboxActivity {
             String path = photoList.get(numPhotos);
             Uri uri = Uri.parse(path);
 
-            Bitmap b = ImageHelper.getBitmapFromURI(uri, this.getContentResolver());
+            Bitmap b = ImageHelper.getBitmapFromURI(ManageAlbumActivity.this, uri);
 
             if (b != null) {
                 // This works because column widths are equal
@@ -358,7 +376,7 @@ public class ManageAlbumActivity extends DropboxActivity {
             Toast.makeText(getApplicationContext(), "Unable to create user catalog.", Toast.LENGTH_SHORT).show();
         }
 
-        File encryptedCatalog = encryptCatalog(catalog,getMembershipForUser(user.getUsername()).getKey());
+        File encryptedCatalog = SecurityHelper.encryptFile(ManageAlbumActivity.this, catalog, getMembershipForUser(user.getUsername()).getKey());
 
         return Uri.fromFile(encryptedCatalog).toString();
     }
@@ -417,7 +435,7 @@ public class ManageAlbumActivity extends DropboxActivity {
     }
 
     // download pictures from dropbox or using wifi-direct
-    private void downloadPicture(String url) {
+    private void downloadPicture(String url, String key) {
         if (mode == Constants.APP_MODE_CLOUD) {
             String picture = ManageAlbumActivity.this.getFilesDir().getPath() + "/" + StringGenerator.generateName(10) + ".jpg";
 
@@ -425,6 +443,11 @@ public class ManageAlbumActivity extends DropboxActivity {
             request.setPriority(Priority.HIGH);
             request.setNetworkType(NetworkType.ALL);
             request.setTag(DOWNLOAD_PICTURE);
+
+            Map<String, String> extras = new HashMap<>();
+            extras.put("key", key);
+
+            request.setExtras(new Extras(extras));
 
             fetch.enqueue(request, updatedRequest -> {
                 // request was enqueued for download
@@ -455,9 +478,14 @@ public class ManageAlbumActivity extends DropboxActivity {
                 switch (response.code()) {
                     case 200:
                         List<Membership> aux = album.getCatalogs();
+
+                        Membership updatedMembership = getMembershipForUser(user.getUsername());
+                        updatedMembership.setCatalog(catalogURL);
+
                         for (int i = 0; i < album.getCatalogs().size(); i++) {
                             if (album.getCatalogs().get(i).getUsername().equals(user.getUsername())) {
-                                aux.set(i, new Membership(user.getUsername(), catalogURL));
+                                aux.set(i, updatedMembership);
+                                break;
                             }
                         }
 
@@ -486,16 +514,6 @@ public class ManageAlbumActivity extends DropboxActivity {
         });
     }
 
-    // encrypt catalog
-    private File encryptCatalog(File file, String key) {
-        return file;
-    }
-
-    // decrypt catalog
-    private File decryptCatalog(File file, String key) {
-        return file;
-    }
-
     // get catalog URL that belongs to a user
     private Membership getMembershipForUser(String username) {
         for (Membership m : album.getCatalogs()) {
@@ -519,14 +537,13 @@ public class ManageAlbumActivity extends DropboxActivity {
                 String tag = download.getTag();
 
                 File file = new File(download.getFile());
-                String absolutePath = Uri.fromFile(file).toString();
 
                 if (tag.equals(DOWNLOAD_CATALOG)) {
                     String key = download.getExtras().getString("key", getMembershipForUser(user.getUsername()).getKey());
 
                     try {
                         // decrypt catalog
-                        File decryptedFile = decryptCatalog(file, key);
+                        File decryptedFile = SecurityHelper.decryptFile(ManageAlbumActivity.this, file, key);
 
                         Scanner sc = new Scanner(decryptedFile);
 
@@ -534,7 +551,7 @@ public class ManageAlbumActivity extends DropboxActivity {
                         // call downloadPicture
                         while (sc.hasNextLine()) {
                             String url = sc.nextLine();
-                            downloadPicture(url);
+                            downloadPicture(url, key);
                         }
 
                         sc.close();
@@ -547,7 +564,7 @@ public class ManageAlbumActivity extends DropboxActivity {
 
                     try {
                         // decrypt catalog
-                        File decryptedFile = decryptCatalog(file, key);
+                        File decryptedFile = SecurityHelper.decryptFile(ManageAlbumActivity.this, file, key);
 
                         // add photo URL
                         FileWriter fw = new FileWriter(decryptedFile, true);
@@ -557,7 +574,7 @@ public class ManageAlbumActivity extends DropboxActivity {
                         fw.close();
 
                         // encrypt catalog
-                        File encryptedFile = encryptCatalog(file, key);
+                        File encryptedFile = SecurityHelper.encryptFile(ManageAlbumActivity.this, decryptedFile, key);
 
                         // upload back to dropbox
                         uploadCatalog(Uri.fromFile(encryptedFile).toString());
@@ -565,8 +582,12 @@ public class ManageAlbumActivity extends DropboxActivity {
                         Toast.makeText(getApplicationContext(), "Cannot edit catalog file", Toast.LENGTH_SHORT).show();
                     }
                 } else if (tag.equals(DOWNLOAD_PICTURE)) {
+                    // decrypt picture
+                    String key = download.getExtras().getString("key", getMembershipForUser(user.getUsername()).getKey());
+                    File decryptedPicture = SecurityHelper.decryptFile(ManageAlbumActivity.this, file, key);
+
                     // get URI and add to list
-                    photoList.add(absolutePath);
+                    photoList.add(Uri.fromFile(decryptedPicture).toString());
 
                     configureLayout();
                 }
@@ -628,12 +649,13 @@ public class ManageAlbumActivity extends DropboxActivity {
     /*
      *  Function called onResume()
      *  Check out DropboxActivity
-     *
-     *  Unused
      */
 
     @Override
     protected void loadData() {
+        if (Hawk.contains(Constants.CURRENT_ALBUM_KEY)) {
+            album = Hawk.get(Constants.CURRENT_ALBUM_KEY);
+        }
     }
 
     /*

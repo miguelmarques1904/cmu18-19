@@ -13,9 +13,10 @@ public class Membership {
     @SerializedName("key")
     private String key;
 
-    public Membership(String username, String catalog) {
+    public Membership(String username, String catalog, String key) {
         this.username = username;
         this.catalog = catalog;
+        this.key = key;
     }
 
     public String getUsername() {
