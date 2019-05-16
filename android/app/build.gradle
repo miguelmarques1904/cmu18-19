@@ -35,4 +35,5 @@ dependencies {
     implementation 'com.dropbox.core:dropbox-core-sdk:3.1.0'
 
     implementation 'com.tonyodev.fetch2:fetch2:3.0.6'
+    implementation project(path: ':Termite-WifiP2P-API')
 }

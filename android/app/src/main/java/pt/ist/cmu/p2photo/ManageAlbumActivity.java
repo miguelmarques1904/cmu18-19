@@ -35,8 +35,10 @@ import org.jetbrains.annotations.Nullable;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -233,10 +235,12 @@ public class ManageAlbumActivity extends DropboxActivity {
             photoList.add(imageURI.toString());
             configureLayout();
 
+            // get catalog for user
+            String userCatalog = getMembershipForUser(user.getUsername()).getCatalog();
+            boolean catalogExists = !userCatalog.equals("0");
+
+
             if (mode == Constants.APP_MODE_CLOUD) {
-                // get catalog for user
-                String userCatalog = getMembershipForUser(user.getUsername()).getCatalog();
-                boolean catalogExists = !userCatalog.equals("0");
 
                 // show uploading message
                 Toast.makeText(ManageAlbumActivity.this, "Uploading...", Toast.LENGTH_LONG).show();
@@ -262,9 +266,54 @@ public class ManageAlbumActivity extends DropboxActivity {
                 }).execute(imageURI.toString(), "");
 
             } else if (mode == Constants.APP_MODE_WIFI_DIRECT) {
-                // TODO: WIFI-DIRECT
-                // upload the picture to the device where
-                // it should go
+                // TODO: WIFI-DIRECT upload picture to where it should go
+                if(!catalogExists) {
+                    String catalogURI = createCatalog(imageURI.toString()); //create catalog file
+                    updateServerCatalog(catalogURI); //write catalog URI to server
+                } else {
+                    // add photo URL
+
+                   String stringURI =  getMembershipForUser(user.getUsername()).getCatalog();
+                   Uri catalogURI = Uri.parse(stringURI);
+                   String key = getMembershipForUser(user.getUsername()).getKey();
+
+                   File encryptedCatalog = new File(catalogURI.getPath());  //get catalog file and decrypt it
+                   File catalogFile = decryptCatalog(encryptedCatalog, key);
+
+                   try {
+
+                       FileWriter fw = new FileWriter(catalogFile, true);
+                       BufferedWriter bw = new BufferedWriter(fw);
+                       bw.write("\n" + stringURI);
+                       bw.close();
+                       fw.close();
+                   }
+                   catch (IOException e){
+                       Toast.makeText(ManageAlbumActivity.this, "An error occurred when updating catalog file.", Toast.LENGTH_LONG).show();
+                   }
+                }
+
+
+
+
+                /*
+                String fileName = album.getName() + ".txt";
+
+               FileOutputStream fOut = openFileOutput(fileName, MODE_APPEND);
+
+                OutputStreamWriter osw = new OutputStreamWriter(fOut);
+
+                try {
+                    osw.write("URI");
+                    osw.flush();
+                    osw.close();
+                }
+
+                catch (IOException e){
+                    Toast.makeText(ManageAlbumActivity.this, "An error occurred when writing to catalog.", Toast.LENGTH_LONG).show();
+                }*/
+
+
             }
         }
     }

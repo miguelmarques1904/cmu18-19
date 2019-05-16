@@ -10,4 +10,5 @@ public class Constants {
     public static final String DROPBOX_UID_KEY = "dropboxUid";
     public static final String API_URL = "http://192.168.1.70:8000/p2photo/api/";
     public static final String DROPBOX_APP_KEY = "wp1km1w0la1hfhn";
+    public static final int PORT_NUMBER = 330;
 }
