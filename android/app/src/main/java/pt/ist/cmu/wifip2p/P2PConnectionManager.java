@@ -239,7 +239,9 @@ P2PConnectionManager implements PeerListListener, GroupInfoListener {
 
                             }
 
-                            else if ( false ){
+                            else if ( st == "GET CATALOG" ){
+
+                                String catalogURI = sockIn.readLine();
                                 //handle picture request
                             }
 
