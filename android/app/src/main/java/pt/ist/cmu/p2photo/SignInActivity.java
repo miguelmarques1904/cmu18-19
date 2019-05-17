@@ -97,11 +97,8 @@ public class SignInActivity extends DropboxActivity {
                                     loginBtn.setEnabled(false);
                                 }
                             } else if (mode == Constants.APP_MODE_WIFI_DIRECT) {
-                                message.setText("You are now logged in.");
+                                message.setText("Login Successful");
                                 loginBtn.setEnabled(false);
-
-                                // TODO: WIFI-DIRECT (maybe) create credentials
-                                // initialize data for wifi-direct to work
                             }
 
                             break;

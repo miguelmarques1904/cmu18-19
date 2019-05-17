@@ -48,7 +48,9 @@ import pt.inesc.termite.wifidirect.SimWifiP2pManager.GroupInfoListener;
 import pt.ist.cmu.helpers.Constants;
 import pt.ist.cmu.models.User;
 
-public class P2PConnectionManager implements PeerListListener, GroupInfoListener {
+public class
+
+P2PConnectionManager implements PeerListListener, GroupInfoListener {
 
     private static HashMap<String, String> ipTable = new HashMap<String, String>();
     private static SimWifiP2pSocket CliSocket = null;
@@ -69,7 +71,6 @@ public class P2PConnectionManager implements PeerListListener, GroupInfoListener
 
     public static void init(Context context_arg){
 
-
         context = context_arg;
 
         // register broadcast receiver
@@ -80,7 +81,6 @@ public class P2PConnectionManager implements PeerListListener, GroupInfoListener
         filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION);
         mReceiver = new P2PBroadcastReceiver();
         context.registerReceiver(mReceiver, filter);
-
 
         //initialize wifi direct
         Intent intent = new Intent(context, SimWifiP2pService.class);
