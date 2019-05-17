@@ -15,15 +15,11 @@ import android.content.BroadcastReceiver;
 public class P2PBroadcastReceiver extends BroadcastReceiver {
 
     private SimWifiP2pManager mManager;
-
     private MainActivity mActivity;
-
 
     public P2PBroadcastReceiver() {
         super();
     }
-
-
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -34,19 +30,14 @@ public class P2PBroadcastReceiver extends BroadcastReceiver {
             // - creating the service generates the WIFI_P2P_STATE_ENABLED event
             // - destroying the service generates the WIFI_P2P_STATE_DISABLED event
 
-           //wifidirect ennable or disabled
+            // wifidirect ennable or disabled
 
         } else if (SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
-
-
-
+            // something
         } else if (SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION.equals(action)) {
-
-            //Network membership changed
-
+            // network membership changed
         } else if (SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION.equals(action)) {
-
-            //Group ownership changed
+            // group ownership changed
         }
     }
 

@@ -429,10 +429,6 @@ public class ManageAlbumActivity extends DropboxActivity {
                     Toast.makeText(ManageAlbumActivity.this, "An error occurred when uploading catalog to Dropbox.", Toast.LENGTH_LONG).show();
                 }
             }).execute(catalogURI, "");
-        } else if (mode == Constants.APP_MODE_WIFI_DIRECT) {
-            // TODO: WIFI-DIRECT upload catalog
-            // How: find out where to upload the
-            // catalog to or simply keep it
         }
     }
 
@@ -499,16 +495,17 @@ public class ManageAlbumActivity extends DropboxActivity {
             HashMap<String,String> catalogURIs = new HashMap<>();
             List<String> activeUsers = new ArrayList<>();
 
-            for(Membership m : album.getMemberships()){
-                if(ipTable.get(m.getUsername()) != null){
+            for (Membership m : album.getMemberships()){
+                if (ipTable.containsKey(m.getUsername())) {
                     activeUsers.add(m.getUsername());
                     catalogURIs.put(m.getUsername(), m.getCatalog());
                 }
             }
 
-            if(activeUsers != null){
-               for( String user : activeUsers){
-                   P2PConnectionManager.getImages(catalogURIs.get(user), ipTable.get(user)); //call getImages for each connected user
+            if (activeUsers != null){
+               for (String user : activeUsers){
+                   // call getImages for each connected user
+                   P2PConnectionManager.getImages(catalogURIs.get(user), ipTable.get(user));
                }
             }
         }
@@ -587,58 +584,64 @@ public class ManageAlbumActivity extends DropboxActivity {
 
                 File file = new File(download.getFile());
 
-                if (tag.equals(DOWNLOAD_CATALOG)) {
-                    String key = download.getExtras().getString("key", getMembershipForUser(user.getUsername()).getKey());
+                switch (tag) {
+                    case DOWNLOAD_CATALOG:
+                        String key = download.getExtras().getString("key", getMembershipForUser(user.getUsername()).getKey());
 
-                    try {
-                        // decrypt catalog
-                        File decryptedFile = SecurityHelper.decryptFile(ManageAlbumActivity.this, file, key);
+                        try {
+                            // decrypt catalog
+                            File decryptedFile = SecurityHelper.decryptFile(ManageAlbumActivity.this, file, key);
 
-                        Scanner sc = new Scanner(decryptedFile);
+                            Scanner sc = new Scanner(decryptedFile);
 
-                        // read url photos
-                        // call downloadPicture
-                        while (sc.hasNextLine()) {
-                            String url = sc.nextLine();
-                            downloadPicture(url, key);
+                            // read url photos
+                            // call downloadPicture
+                            while (sc.hasNextLine()) {
+                                String url = sc.nextLine();
+                                downloadPicture(url, key);
+                            }
+
+                            sc.close();
+                        } catch (Exception e) {
+                            Toast.makeText(getApplicationContext(), "Cannot read catalog file", Toast.LENGTH_SHORT).show();
                         }
 
-                        sc.close();
-                    } catch (Exception e) {
-                        Toast.makeText(getApplicationContext(), "Cannot read catalog file", Toast.LENGTH_SHORT).show();
-                    }
-                } else if (tag.equals(UPDATE_CATALOG)) {
-                    String url = download.getExtras().getString("url", "0");
-                    String key = getMembershipForUser(user.getUsername()).getKey();
+                        break;
+                    case UPDATE_CATALOG:
+                        String url = download.getExtras().getString("url", "0");
+                        key = getMembershipForUser(user.getUsername()).getKey();
 
-                    try {
-                        // decrypt catalog
-                        File decryptedFile = SecurityHelper.decryptFile(ManageAlbumActivity.this, file, key);
+                        try {
+                            // decrypt catalog
+                            File decryptedFile = SecurityHelper.decryptFile(ManageAlbumActivity.this, file, key);
 
-                        // add photo URL
-                        FileWriter fw = new FileWriter(decryptedFile, true);
-                        BufferedWriter bw = new BufferedWriter(fw);
-                        bw.write("\n" + url);
-                        bw.close();
-                        fw.close();
+                            // add photo URL
+                            FileWriter fw = new FileWriter(decryptedFile, true);
+                            BufferedWriter bw = new BufferedWriter(fw);
+                            bw.write("\n" + url);
+                            bw.close();
+                            fw.close();
 
-                        // encrypt catalog
-                        File encryptedFile = SecurityHelper.encryptFile(ManageAlbumActivity.this, decryptedFile, key);
+                            // encrypt catalog
+                            File encryptedFile = SecurityHelper.encryptFile(ManageAlbumActivity.this, decryptedFile, key);
 
-                        // upload back to dropbox
-                        uploadCatalog(Uri.fromFile(encryptedFile).toString());
-                    } catch (Exception e) {
-                        Toast.makeText(getApplicationContext(), "Cannot edit catalog file", Toast.LENGTH_SHORT).show();
-                    }
-                } else if (tag.equals(DOWNLOAD_PICTURE)) {
-                    // decrypt picture
-                    String key = download.getExtras().getString("key", getMembershipForUser(user.getUsername()).getKey());
-                    File decryptedPicture = SecurityHelper.decryptFile(ManageAlbumActivity.this, file, key);
+                            // upload back to dropbox
+                            uploadCatalog(Uri.fromFile(encryptedFile).toString());
+                        } catch (Exception e) {
+                            Toast.makeText(getApplicationContext(), "Cannot edit catalog file", Toast.LENGTH_SHORT).show();
+                        }
 
-                    // get URI and add to list
-                    photoList.add(Uri.fromFile(decryptedPicture).toString());
+                        break;
+                    case DOWNLOAD_PICTURE:
+                        // decrypt picture
+                        key = download.getExtras().getString("key", getMembershipForUser(user.getUsername()).getKey());
+                        File decryptedPicture = SecurityHelper.decryptFile(ManageAlbumActivity.this, file, key);
 
-                    configureLayout();
+                        // get URI and add to list
+                        photoList.add(Uri.fromFile(decryptedPicture).toString());
+
+                        configureLayout();
+                        break;
                 }
             }
 
