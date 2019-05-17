@@ -70,6 +70,7 @@ import pt.ist.cmu.helpers.UriHelper;
 import pt.ist.cmu.models.Album;
 import pt.ist.cmu.models.Membership;
 import pt.ist.cmu.models.User;
+import pt.ist.cmu.wifip2p.P2PConnectionManager;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -230,6 +231,11 @@ public class ManageAlbumActivity extends DropboxActivity {
                 Toast.makeText(getApplicationContext(), "Something went wrong... Network may be down...", Toast.LENGTH_SHORT).show();
             }
         });
+
+        if(mode == Constants.APP_MODE_WIFI_DIRECT){ //scan group info
+            P2PConnectionManager connectionManager = new P2PConnectionManager();
+            connectionManager.updateGroupInfo();
+        }
     }
 
     /*
@@ -511,6 +517,26 @@ public class ManageAlbumActivity extends DropboxActivity {
             //
             // remember to call configureLayout() after the
             // URI has been added to photoList
+
+            HashMap<String, String> ipTable;
+
+            ipTable = P2PConnectionManager.getIPs();
+            HashMap<String,String> catalogURIs = new HashMap<>();
+            List<String> activeUsers = new ArrayList<>();
+
+            for(Membership m : album.getCatalogs()){
+                if(ipTable.get(m.getUsername()) != null){
+                    activeUsers.add(m.getUsername());
+                    catalogURIs.put(m.getUsername(), m.getCatalog());
+                }
+            }
+
+            if(activeUsers != null){
+               for( String user : activeUsers){
+                   P2PConnectionManager.getImages(catalogURIs.get(user), ipTable.get(user)); //call getImages for each connected user
+               }
+
+            }
         }
     }
 

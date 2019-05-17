@@ -13,6 +13,7 @@ import pt.ist.cmu.api.ApiService;
 import pt.ist.cmu.api.RetrofitInstance;
 import pt.ist.cmu.helpers.Constants;
 import pt.ist.cmu.models.User;
+import pt.ist.cmu.wifip2p.P2PConnectionManager;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -25,6 +26,9 @@ public class MainActivity extends AppCompatActivity {
     Button login;
     Button createAlbum;
     Button viewAlbum;
+
+    // get app mode
+    private  int mode = Hawk.get(Constants.APP_MODE);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +57,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (loggedIn) {
             loggedInView();
+        }
+
+        if(mode == Constants.APP_MODE_WIFI_DIRECT){
+            P2PConnectionManager.init(getApplicationContext());
         }
     }
 
