@@ -157,7 +157,7 @@ P2PConnectionManager implements PeerListListener, GroupInfoListener {
             byte message [] = ("GET_USERNAME \n").getBytes();
 
             try {
-                CliSocket = new SimWifiP2pSocket(params[0],
+                SimWifiP2pSocket CliSocket = new SimWifiP2pSocket(params[0],
                         Constants.PORT_NUMBER);
 
                 CliSocket.getOutputStream().write(message);
@@ -196,7 +196,7 @@ P2PConnectionManager implements PeerListListener, GroupInfoListener {
             byte message [] = ("Message").getBytes(Charset.forName("UTF-8"));
 
             try {
-                CliSocket = new SimWifiP2pSocket(params[0],
+                SimWifiP2pSocket CliSocket = new SimWifiP2pSocket(params[0],
                                 Constants.PORT_NUMBER);
 
                 CliSocket.getOutputStream().write(message);
