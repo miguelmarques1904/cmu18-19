@@ -51,7 +51,6 @@ import pt.ist.cmu.models.User;
 public class P2PConnectionManager implements PeerListListener, GroupInfoListener {
 
     private static HashMap<String, String> ipTable = new HashMap<String, String>();
-    private static SimWifiP2pSocketServer mSrvSocket = null;
     private static SimWifiP2pSocket CliSocket = null;
     private static SimWifiP2pDeviceList peerList;
     private static boolean finished;
@@ -62,9 +61,6 @@ public class P2PConnectionManager implements PeerListListener, GroupInfoListener
     private static SimWifiP2pManager mManager = null;
     private static SimWifiP2pManager.Channel mChannel = null;
     private static Messenger mService = null;
-    private static boolean mBound = false;
-    private TextView mTextInput;
-    private TextView mTextOutput;
     private static P2PBroadcastReceiver mReceiver;
 
 
@@ -93,8 +89,12 @@ public class P2PConnectionManager implements PeerListListener, GroupInfoListener
         // initialize the WDSim API
        SimWifiP2pSocketManager.Init(context);
 
-       /* new IncommingCommTask().executeOnExecutor(
-                AsyncTask.THREAD_POOL_EXECUTOR);*/
+       new IncomingCommTask().executeOnExecutor(
+                AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
+    public static void destroy(Context context){
+        context.unregisterReceiver(mReceiver);
     }
 
     private static ServiceConnection mConnection = new ServiceConnection() {
@@ -107,7 +107,6 @@ public class P2PConnectionManager implements PeerListListener, GroupInfoListener
             mService = new Messenger(service);
             mManager = new SimWifiP2pManager(mService);
             mChannel = mManager.initialize(context, mainLooper, null);
-            mBound = true;
         }
 
         @Override
@@ -115,7 +114,6 @@ public class P2PConnectionManager implements PeerListListener, GroupInfoListener
             mService = null;
             mManager = null;
             mChannel = null;
-            mBound = false;
         }
     };
 
@@ -218,7 +216,7 @@ public class P2PConnectionManager implements PeerListListener, GroupInfoListener
         }
     }
 
-    public static class IncommingCommTask extends AsyncTask<Void, String, Void> {
+    public static class IncomingCommTask extends AsyncTask<Void, String, Void> {
 
 
         @Override
@@ -226,41 +224,44 @@ public class P2PConnectionManager implements PeerListListener, GroupInfoListener
 
 
             try {
-                mSrvSocket = new SimWifiP2pSocketServer(
-                                    Constants.PORT_NUMBER);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            while (!Thread.currentThread().isInterrupted()) {
-                try {
-                    SimWifiP2pSocket sock = mSrvSocket.accept();
+                    SimWifiP2pSocketServer  mSrvSocket = new SimWifiP2pSocketServer(
+                                        Constants.PORT_NUMBER);
+
+                while (!Thread.currentThread().isInterrupted()) {
                     try {
-                        BufferedReader sockIn = new BufferedReader(
-                                new InputStreamReader(sock.getInputStream()));
-                        String st = sockIn.readLine();
+                        SimWifiP2pSocket sock = mSrvSocket.accept();
+                        try {
+                            BufferedReader sockIn = new BufferedReader(
+                                    new InputStreamReader(sock.getInputStream()));
+                            String st = sockIn.readLine();
 
-                        if(st == "GET_USERNAME"){
-                            //TODO get username and send it
+                            if(st == "GET_USERNAME"){
+                                //TODO get username and send it
 
-                           User user = Hawk.get(Constants.CURRENT_USER_KEY);
-                           String username = user.getUsername();
+                               User user = Hawk.get(Constants.CURRENT_USER_KEY);
+                               String username = user.getUsername();
 
-                           sock.getOutputStream().write(username.getBytes(Charset.forName("UTF-8")));
+                               sock.getOutputStream().write(username.getBytes(Charset.forName("UTF-8")));
 
+                            }
+
+                        } catch (IOException e) {
+                            Log.d("Error reading socket:", e.getMessage());
+                        } finally {
+                            sock.close();
                         }
-
                     } catch (IOException e) {
-                        Log.d("Error reading socket:", e.getMessage());
-                    } finally {
-                        sock.close();
+                        Log.d("Error socket:", e.getMessage());
+                        break;
+                        //e.printStackTrace();
                     }
-                } catch (IOException e) {
-                    Log.d("Error socket:", e.getMessage());
-                    break;
-                    //e.printStackTrace();
                 }
+
+            } catch (IOException e) {
+                Log.d("Error creating socket:", e.getMessage());
             }
             return null;
+
         }
     }
     /*
