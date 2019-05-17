@@ -1,21 +1,24 @@
 package pt.ist.cmu.helpers;
 
 import android.content.ContentResolver;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.provider.MediaStore;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.InputStream;
 
 public class ImageHelper {
-    public static Bitmap getBitmapFromURI(Context context, Uri uri) {
+    public static Bitmap getBitmapFromURI(ContentResolver cr, Uri uri) {
 
-        File file = UriHelper.getFileForUri(context, uri);
-        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+        Bitmap bitmap = null;
+        try {
+            InputStream inputStream = cr.openInputStream(uri);
+            bitmap = BitmapFactory.decodeStream(inputStream);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
 
         return bitmap;
     }

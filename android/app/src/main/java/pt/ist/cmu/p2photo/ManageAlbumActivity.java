@@ -289,9 +289,8 @@ public class ManageAlbumActivity extends DropboxActivity {
 
             } else if (mode == Constants.APP_MODE_WIFI_DIRECT) {
                 if (!catalogExists) {
-                    System.out.println(imageURI.toString());
-                    String catalogURI = createCatalog(imageURI.toString()); //create catalog file
-                    updateServerCatalog(catalogURI); //write catalog URI to server
+                    String catalogURI = createCatalog(imageURI.toString());
+                    updateServerCatalog(catalogURI);
                 } else {
                     String stringURI =  getMembershipForUser(user.getUsername()).getCatalog();
                     Uri catalogURI = Uri.parse(stringURI);
@@ -324,7 +323,7 @@ public class ManageAlbumActivity extends DropboxActivity {
             String path = photoList.get(numPhotos);
             Uri uri = Uri.parse(path);
 
-            Bitmap b = ImageHelper.getBitmapFromURI(ManageAlbumActivity.this, uri);
+            Bitmap b = ImageHelper.getBitmapFromURI(getContentResolver(), uri);
 
             if (b != null) {
                 // This works because column widths are equal
