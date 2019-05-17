@@ -195,6 +195,8 @@ P2PConnectionManager implements PeerListListener, GroupInfoListener {
 
                 CliSocket.getOutputStream().write(message);
 
+                //TODO receive pictures and save them
+
 
             } catch (UnknownHostException e) {
                 return "Unknown Host:" + e.getMessage();
@@ -230,7 +232,7 @@ P2PConnectionManager implements PeerListListener, GroupInfoListener {
                             String st = sockIn.readLine();
 
                             if(st == "GET_USERNAME"){
-                                //TODO get username and send it
+                                // get username and send it
 
                                User user = Hawk.get(Constants.CURRENT_USER_KEY);
                                String username = user.getUsername();
@@ -288,7 +290,10 @@ P2PConnectionManager implements PeerListListener, GroupInfoListener {
     @Override
     public void onGroupInfoAvailable(SimWifiP2pDeviceList devices,
                                      SimWifiP2pInfo groupInfo) {
+        //possible fix for unknown host
+        /*SimWifiP2pSocketManager.getSockManager().handleActionDeviceInfoChanged(devices);
+        SimWifiP2pSocketManager.getSockManager().handleActionGroupMembershipChanged(groupInfo);*/
 
-         peerList = devices; //update peer list
+        peerList = devices; //update peer list
     }
 }

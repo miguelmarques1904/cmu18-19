@@ -81,13 +81,17 @@ public class MainActivity  extends AppCompatActivity  {
     @Override
     protected void onPause() {
         super.onPause();
-        P2PConnectionManager.destroy(MainActivity.this); //unregister receiver
+        if(mode == Constants.APP_MODE_WIFI_DIRECT) {
+            P2PConnectionManager.destroy(MainActivity.this); //unregister receiver
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        P2PConnectionManager.destroy(MainActivity.this); //unregister receiver
+        if(mode == Constants.APP_MODE_WIFI_DIRECT) {
+            P2PConnectionManager.destroy(MainActivity.this); //unregister receiver
+        }
     }
 
     /*
