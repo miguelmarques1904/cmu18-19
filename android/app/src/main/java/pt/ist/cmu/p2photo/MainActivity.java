@@ -78,6 +78,18 @@ public class MainActivity  extends AppCompatActivity  {
         }
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        P2PConnectionManager.destroy(MainActivity.this); //unregister receiver
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        P2PConnectionManager.destroy(MainActivity.this); //unregister receiver
+    }
+
     /*
      *  Log in or log out action
      */
