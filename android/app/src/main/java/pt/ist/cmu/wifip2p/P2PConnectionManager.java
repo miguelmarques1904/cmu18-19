@@ -118,11 +118,9 @@ P2PConnectionManager implements PeerListListener, GroupInfoListener {
     };
 
 
-
-
-
     public static HashMap  getIPs (){
 
+        ipTable.clear(); //reset IP Table
 
         for( SimWifiP2pDevice device : peerList.getDeviceList()){  //for each device call SendCatalog
             new getUserNamesTask().executeOnExecutor(
@@ -134,20 +132,8 @@ P2PConnectionManager implements PeerListListener, GroupInfoListener {
         }
 
         finished = false;
-        return ipTable; //TODO empty ipTable
+        return ipTable;
     }
-
-    public static void getImages (String uri, String ip){
-
-        for( SimWifiP2pDevice device : peerList.getDeviceList()){  //for each device call SendCatalog
-            new getPicturesTask().executeOnExecutor(
-                    AsyncTask.THREAD_POOL_EXECUTOR,
-                    device.getVirtIp(),
-                    uri);
-        }
-    }
-
-
 
 
     public static class getUserNamesTask extends AsyncTask<String, Void, String> { //get all usernames and associate to IP addresses
@@ -243,6 +229,10 @@ P2PConnectionManager implements PeerListListener, GroupInfoListener {
 
                                sock.getOutputStream().write(username.getBytes(Charset.forName("UTF-8")));
 
+                            }
+
+                            else if ( false ){
+                                //handle picture request
                             }
 
                         } catch (IOException e) {
