@@ -14,9 +14,6 @@ import android.content.BroadcastReceiver;
 
 public class P2PBroadcastReceiver extends BroadcastReceiver {
 
-    private SimWifiP2pManager mManager;
-    private MainActivity mActivity;
-
     public P2PBroadcastReceiver() {
         super();
     }
@@ -30,7 +27,7 @@ public class P2PBroadcastReceiver extends BroadcastReceiver {
             // - creating the service generates the WIFI_P2P_STATE_ENABLED event
             // - destroying the service generates the WIFI_P2P_STATE_DISABLED event
 
-            // wifidirect ennable or disabled
+            // wifidirect enable or disabled
 
         } else if (SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
             // something

@@ -18,7 +18,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-
 public class MainActivity extends AppCompatActivity {
 
     public static boolean loggedIn = false;
@@ -52,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (mode == Constants.APP_MODE_WIFI_DIRECT) {
-            P2PConnectionManager.init(MainActivity.this);
+            P2PConnectionManager.getInstance().init(MainActivity.this);
 
             Toast toast = Toast.makeText(getApplicationContext(), "Wi-Fi Direct ON", Toast.LENGTH_SHORT);
             toast.show();
@@ -65,24 +64,6 @@ public class MainActivity extends AppCompatActivity {
 
         if (loggedIn) {
             loggedInView();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        if (mode == Constants.APP_MODE_WIFI_DIRECT) {
-            P2PConnectionManager.destroy(MainActivity.this);
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        if (mode == Constants.APP_MODE_WIFI_DIRECT) {
-            P2PConnectionManager.destroy(MainActivity.this);
         }
     }
 
