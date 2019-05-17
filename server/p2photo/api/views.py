@@ -237,6 +237,10 @@ def validate_catalog(url):
     if url is None:
         return False
 
+    # wi-fi direct uri
+    if not url[0:4] == "http":
+        return True
+
     # initialize url validator
     validator = URLValidator()
 
