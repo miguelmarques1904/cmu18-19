@@ -68,17 +68,11 @@ public class P2PConnectionManager implements PeerListListener, GroupInfoListener
     private static P2PBroadcastReceiver mReceiver;
 
 
-
-
-
-
-
     public P2PConnectionManager(){
     }
 
     public static void init(Context context_arg){
-        new IncommingCommTask().executeOnExecutor(
-                AsyncTask.THREAD_POOL_EXECUTOR);
+
 
         context = context_arg;
 
@@ -89,13 +83,18 @@ public class P2PConnectionManager implements PeerListListener, GroupInfoListener
         filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION);
         filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION);
         mReceiver = new P2PBroadcastReceiver();
-        context.registerReceiver(mReceiver, filter);//TODO check this
+        context.registerReceiver(mReceiver, filter);
 
 
-
-        Intent intent = new Intent(context,  //TODO pass appropriate context
-               SimWifiP2pService.class);
+        //initialize wifi direct
+        Intent intent = new Intent(context, SimWifiP2pService.class);
         context.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+
+        // initialize the WDSim API
+       SimWifiP2pSocketManager.Init(context);
+
+       /* new IncommingCommTask().executeOnExecutor(
+                AsyncTask.THREAD_POOL_EXECUTOR);*/
     }
 
     private static ServiceConnection mConnection = new ServiceConnection() {
@@ -109,7 +108,6 @@ public class P2PConnectionManager implements PeerListListener, GroupInfoListener
             mManager = new SimWifiP2pManager(mService);
             mChannel = mManager.initialize(context, mainLooper, null);
             mBound = true;
-            mReceiver.setManager(mManager);
         }
 
         @Override

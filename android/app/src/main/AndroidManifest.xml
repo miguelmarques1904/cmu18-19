@@ -76,6 +76,8 @@
             android:label="Photo"
             android:parentActivityName=".ManageAlbumActivity" >
         </activity>
+
+        <service android:name="pt.inesc.termite.wifidirect.service.SimWifiP2pService" />
     </application>
 
 </manifest>
