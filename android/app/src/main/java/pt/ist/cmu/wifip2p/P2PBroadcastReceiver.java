@@ -3,25 +3,27 @@ package pt.ist.cmu.wifip2p;
 import pt.inesc.termite.wifidirect.SimWifiP2pBroadcast;
 import pt.inesc.termite.wifidirect.SimWifiP2pInfo;
 import pt.inesc.termite.wifidirect.SimWifiP2pManager;
+import pt.ist.cmu.p2photo.MainActivity;
 import pt.ist.cmu.p2photo.ManageAlbumActivity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
+import android.content.BroadcastReceiver;
 
-public class P2PBroadcastReceiver extends android.content.BroadcastReceiver {
+public class P2PBroadcastReceiver extends BroadcastReceiver {
 
     private SimWifiP2pManager mManager;
 
+    private MainActivity mActivity;
 
-    public P2PBroadcastReceiver() {                     //TODO pass the correct activity
+
+    public P2PBroadcastReceiver() {
         super();
     }
 
-    public void setManager(SimWifiP2pManager mManager){
-        this.mManager = mManager;
-    }
+
 
     @Override
     public void onReceive(Context context, Intent intent) {
