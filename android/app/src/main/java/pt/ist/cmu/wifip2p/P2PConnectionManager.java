@@ -48,7 +48,9 @@ import pt.inesc.termite.wifidirect.SimWifiP2pManager.GroupInfoListener;
 import pt.ist.cmu.helpers.Constants;
 import pt.ist.cmu.models.User;
 
-public class P2PConnectionManager implements PeerListListener, GroupInfoListener {
+public class
+
+P2PConnectionManager implements PeerListListener, GroupInfoListener {
 
     private static HashMap<String, String> ipTable = new HashMap<String, String>();
     private static SimWifiP2pSocketServer mSrvSocket = null;
@@ -77,8 +79,7 @@ public class P2PConnectionManager implements PeerListListener, GroupInfoListener
     }
 
     public static void init(Context context_arg){
-        new IncommingCommTask().executeOnExecutor(
-                AsyncTask.THREAD_POOL_EXECUTOR);
+        //new IncommingCommTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         context = context_arg;
 

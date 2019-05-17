@@ -252,20 +252,18 @@ public class ManageAlbumActivity extends DropboxActivity {
             Uri imageURI = data.getData();
             File image = UriHelper.getFileForUri(ManageAlbumActivity.this, imageURI);
 
-            // encrypt image
-            File encryptedImage = SecurityHelper.encryptFile(ManageAlbumActivity.this, image, getMembershipForUser(user.getUsername()).getKey());
-
             // add to list and re-configure layout
             photoList.add(imageURI.toString());
             configureLayout();
+
+            // encrypt image
+            File encryptedImage = SecurityHelper.encryptFile(ManageAlbumActivity.this, image, getMembershipForUser(user.getUsername()).getKey());
 
             // get catalog for user
             String userCatalog = getMembershipForUser(user.getUsername()).getCatalog();
             boolean catalogExists = !userCatalog.equals("0");
 
-
             if (mode == Constants.APP_MODE_CLOUD) {
-
                 // show uploading message
                 Toast.makeText(ManageAlbumActivity.this, "Uploading...", Toast.LENGTH_LONG).show();
 
@@ -290,61 +288,35 @@ public class ManageAlbumActivity extends DropboxActivity {
                 }).execute(Uri.fromFile(encryptedImage).toString(), "");
 
             } else if (mode == Constants.APP_MODE_WIFI_DIRECT) {
-                // TODO: WIFI-DIRECT upload picture to where it should go
-                if(!catalogExists) {
+                if (!catalogExists) {
+                    System.out.println(imageURI.toString());
                     String catalogURI = createCatalog(imageURI.toString()); //create catalog file
                     updateServerCatalog(catalogURI); //write catalog URI to server
                 } else {
-                    // add photo URL
+                    String stringURI =  getMembershipForUser(user.getUsername()).getCatalog();
+                    Uri catalogURI = Uri.parse(stringURI);
+                    String key = getMembershipForUser(user.getUsername()).getKey();
 
-                   String stringURI =  getMembershipForUser(user.getUsername()).getCatalog();
-                   Uri catalogURI = Uri.parse(stringURI);
-                   String key = getMembershipForUser(user.getUsername()).getKey();
+                    File encryptedCatalog = new File(catalogURI.getPath());  //get catalog file and decrypt it
+                    File decryptedFile = SecurityHelper.decryptFile(ManageAlbumActivity.this, encryptedCatalog, key);
 
-                   File encryptedCatalog = new File(catalogURI.getPath());  //get catalog file and decrypt it
-                     File decryptedFile = SecurityHelper.decryptFile(ManageAlbumActivity.this, encryptedCatalog, key);
-
-                   try {
-
-                       FileWriter fw = new FileWriter(decryptedFile, true);
-                       BufferedWriter bw = new BufferedWriter(fw);
-                       bw.write("\n" + stringURI);
-                       bw.close();
-                       fw.close();
-                   }
-                   catch (IOException e){
-                       Toast.makeText(ManageAlbumActivity.this, "An error occurred when updating catalog file.", Toast.LENGTH_LONG).show();
-                   }
+                    try {
+                        FileWriter fw = new FileWriter(decryptedFile, true);
+                        BufferedWriter bw = new BufferedWriter(fw);
+                        bw.write('\n' + stringURI);
+                        bw.close();
+                        fw.close();
+                    } catch (IOException e){
+                        Toast.makeText(ManageAlbumActivity.this, "An error occurred when updating catalog file.", Toast.LENGTH_LONG).show();
+                    }
                 }
-
-
-
-
-                /*
-                String fileName = album.getName() + ".txt";
-
-               FileOutputStream fOut = openFileOutput(fileName, MODE_APPEND);
-
-                OutputStreamWriter osw = new OutputStreamWriter(fOut);
-
-                try {
-                    osw.write("URI");
-                    osw.flush();
-                    osw.close();
-                }
-
-                catch (IOException e){
-                    Toast.makeText(ManageAlbumActivity.this, "An error occurred when writing to catalog.", Toast.LENGTH_LONG).show();
-                }*/
-
-
             }
         }
     }
 
     /*
      *  Configuration of grid layout
-     *  Photos are downloaded using Picasso Library
+     *  Photos are downloaded using Fetch Library
      */
 
     private void configureLayout() {
