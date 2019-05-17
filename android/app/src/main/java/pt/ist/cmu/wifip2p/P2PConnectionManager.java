@@ -52,7 +52,7 @@ public class
 
 P2PConnectionManager implements PeerListListener, GroupInfoListener {
 
-    private static HashMap<String, String> ipTable = new HashMap<String, String>();
+    private static HashMap<String, String> ipTable = new HashMap<>();
     private static SimWifiP2pSocket CliSocket = null;
     private static SimWifiP2pDeviceList peerList;
     private static boolean finished;

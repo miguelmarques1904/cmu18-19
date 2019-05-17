@@ -86,7 +86,7 @@ public class AddUserActivity extends DropboxActivity {
 
         // get album members from preferences
         // add them to ownership view
-        for (Membership m : album.getCatalogs()) {
+        for (Membership m : album.getMemberships()) {
             String memberUsername = m.getUsername();
 
             if (!memberUsername.equals(caller.getUsername())) {
@@ -96,7 +96,7 @@ public class AddUserActivity extends DropboxActivity {
         }
 
         // show message in case of zero members
-        if (album.getCatalogs().size() <= 1) {
+        if (album.getMemberships().size() <= 1) {
             ownUsers.setText("You don't share this album with any user.");
         }
 
@@ -182,9 +182,9 @@ public class AddUserActivity extends DropboxActivity {
                         checkboxList.remove(cb);
 
                         // update album membership
-                        List<Membership> newMembers = album.getCatalogs();
+                        List<Membership> newMembers = album.getMemberships();
                         newMembers.add(new Membership(username, "0", "0"));
-                        album.setCatalogs(newMembers);
+                        album.setMemberships(newMembers);
 
                         // update album on preferences
                         Hawk.put(Constants.CURRENT_ALBUM_KEY, album);

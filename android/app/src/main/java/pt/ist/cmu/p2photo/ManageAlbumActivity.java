@@ -32,6 +32,8 @@ import com.tonyodev.fetch2core.Extras;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,6 +41,8 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -176,14 +180,14 @@ public class ManageAlbumActivity extends DropboxActivity {
             public void onResponse(Call<List<Membership>> memberCall, Response<List<Membership>> response) {
                 switch (response.code()) {
                     case 200:
-                        if (!album.getCatalogs().equals(response.body())) {
-                            album.setCatalogs(response.body());
+                        if (!album.getMemberships().equals(response.body())) {
+                            album.setMemberships(response.body());
 
                             // save album to preferences
                             Hawk.put(Constants.CURRENT_ALBUM_KEY, album);
 
                             // download catalogs
-                            for (Membership m : album.getCatalogs()) {
+                            for (Membership m : album.getMemberships()) {
                                 // get url from memberships of album
                                 String url = m.getCatalog();
 
@@ -289,7 +293,7 @@ public class ManageAlbumActivity extends DropboxActivity {
 
             } else if (mode == Constants.APP_MODE_WIFI_DIRECT) {
                 if (!catalogExists) {
-                    String catalogURI = createCatalog(imageURI.toString());
+                    String catalogURI = createCatalog(encryptedImage.getPath());
                     updateServerCatalog(catalogURI);
                 } else {
                     String stringURI =  getMembershipForUser(user.getUsername()).getCatalog();
@@ -495,7 +499,7 @@ public class ManageAlbumActivity extends DropboxActivity {
             HashMap<String,String> catalogURIs = new HashMap<>();
             List<String> activeUsers = new ArrayList<>();
 
-            for(Membership m : album.getCatalogs()){
+            for(Membership m : album.getMemberships()){
                 if(ipTable.get(m.getUsername()) != null){
                     activeUsers.add(m.getUsername());
                     catalogURIs.put(m.getUsername(), m.getCatalog());
@@ -522,19 +526,19 @@ public class ManageAlbumActivity extends DropboxActivity {
             public void onResponse(Call<Void> memberCall, Response<Void> response) {
                 switch (response.code()) {
                     case 200:
-                        List<Membership> aux = album.getCatalogs();
+                        List<Membership> aux = album.getMemberships();
 
                         Membership updatedMembership = getMembershipForUser(user.getUsername());
                         updatedMembership.setCatalog(catalogURL);
 
-                        for (int i = 0; i < album.getCatalogs().size(); i++) {
-                            if (album.getCatalogs().get(i).getUsername().equals(user.getUsername())) {
+                        for (int i = 0; i < album.getMemberships().size(); i++) {
+                            if (album.getMemberships().get(i).getUsername().equals(user.getUsername())) {
                                 aux.set(i, updatedMembership);
                                 break;
                             }
                         }
 
-                        album.setCatalogs(aux);
+                        album.setMemberships(aux);
                         Hawk.put(Constants.CURRENT_ALBUM_KEY, album);
                         break;
                     case 400:
@@ -561,7 +565,7 @@ public class ManageAlbumActivity extends DropboxActivity {
 
     // get catalog URL that belongs to a user
     private Membership getMembershipForUser(String username) {
-        for (Membership m : album.getCatalogs()) {
+        for (Membership m : album.getMemberships()) {
             if (m.getUsername().equals(username)) {
                 return m;
             }

@@ -10,23 +10,23 @@ public class Album {
     @SerializedName("album")
     private String name;
 
-    private List<Membership> catalogs = new ArrayList<>();
+    private List<Membership> memberships = new ArrayList<>();
 
-    public Album(String name, ArrayList<Membership> catalogs) {
+    public Album(String name, ArrayList<Membership> memberships) {
         this.name = name;
-        this.catalogs = catalogs;
+        this.memberships = memberships;
     }
 
     public Album(String name) {
         this.name = name;
     }
 
-    public List<Membership> getCatalogs() {
-        return catalogs;
+    public List<Membership> getMemberships() {
+        return memberships;
     }
 
-    public void setCatalogs(List<Membership> catalogs) {
-        this.catalogs = catalogs;
+    public void setMemberships(List<Membership> memberships) {
+        this.memberships = memberships;
     }
 
     public String getName() {
