@@ -173,16 +173,24 @@ P2PConnectionManager implements PeerListListener, GroupInfoListener {
 
     }
 
+    public static void getImages (String uri, String ip){
+
+            new getPicturesTask().executeOnExecutor(
+                    AsyncTask.THREAD_POOL_EXECUTOR,
+                    uri,
+                    ip);
+    }
+
     public static class getPicturesTask extends AsyncTask<String, Void, String> {
 
 
         @Override
         protected String doInBackground(String... params) {
 
-            byte message [] = ("Message").getBytes(Charset.forName("UTF-8"));
+            byte message [] = ("GET CATALOG \n" + params[0] + "\n").getBytes(Charset.forName("UTF-8"));
 
             try {
-                SimWifiP2pSocket CliSocket = new SimWifiP2pSocket(params[0],
+                SimWifiP2pSocket CliSocket = new SimWifiP2pSocket(params[1],
                                 Constants.PORT_NUMBER);
 
                 CliSocket.getOutputStream().write(message);

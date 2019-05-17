@@ -507,7 +507,6 @@ public class ManageAlbumActivity extends DropboxActivity {
                for( String user : activeUsers){
                    P2PConnectionManager.getImages(catalogURIs.get(user), ipTable.get(user)); //call getImages for each connected user
                }
-
             }
         }
     }
