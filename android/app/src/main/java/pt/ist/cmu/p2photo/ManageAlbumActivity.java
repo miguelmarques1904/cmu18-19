@@ -236,9 +236,9 @@ public class ManageAlbumActivity extends DropboxActivity {
             }
         });
 
-        if(mode == Constants.APP_MODE_WIFI_DIRECT){ //scan group info
-            P2PConnectionManager connectionManager = new P2PConnectionManager();
-            connectionManager.updateGroupInfo();
+        // scan wi-fi group
+        if (mode == Constants.APP_MODE_WIFI_DIRECT){
+            P2PConnectionManager.getInstance().updateGroupInfo();
         }
     }
 
@@ -300,7 +300,8 @@ public class ManageAlbumActivity extends DropboxActivity {
                     Uri catalogURI = Uri.parse(stringURI);
                     String key = getMembershipForUser(user.getUsername()).getKey();
 
-                    File encryptedCatalog = new File(catalogURI.getPath());  //get catalog file and decrypt it
+                    //get catalog file and decrypt it
+                    File encryptedCatalog = new File(catalogURI.getPath());
                     File decryptedFile = SecurityHelper.decryptFile(ManageAlbumActivity.this, encryptedCatalog, key);
 
                     try {
@@ -453,10 +454,6 @@ public class ManageAlbumActivity extends DropboxActivity {
             }, error -> {
                 Toast.makeText(getApplicationContext(), "Could not download catalog", Toast.LENGTH_LONG).show();
             });
-        } else if (mode == Constants.APP_MODE_WIFI_DIRECT) {
-            // TODO: WIFI-DIRECT download catalog
-            // How: find the catalog and download it
-            // to a file on the device
         }
     }
 
@@ -481,17 +478,7 @@ public class ManageAlbumActivity extends DropboxActivity {
                 Toast.makeText(getApplicationContext(), "Could not download picture", Toast.LENGTH_LONG).show();
             });
         } else if (mode == Constants.APP_MODE_WIFI_DIRECT) {
-            // TODO: WIFI-DIRECT download pictures
-            // HOW: get and store them on the phone
-            // get their URIs (on the file system)
-            // and add the URIs to photoList
-            //
-            // remember to call configureLayout() after the
-            // URI has been added to photoList
-
-            HashMap<String, String> ipTable;
-
-            ipTable = P2PConnectionManager.getIPs();
+            HashMap<String, String> ipTable = P2PConnectionManager.getInstance().getIpTable();
             HashMap<String,String> catalogURIs = new HashMap<>();
             List<String> activeUsers = new ArrayList<>();
 
@@ -502,12 +489,12 @@ public class ManageAlbumActivity extends DropboxActivity {
                 }
             }
 
-            if (activeUsers != null){
-               for (String user : activeUsers){
-                   // call getImages for each connected user
-                   P2PConnectionManager.getImages(catalogURIs.get(user), ipTable.get(user));
-               }
+            for (String user : activeUsers){
+               // call getImages for each connected user
+               P2PConnectionManager.getInstance().getImages(catalogURIs.get(user), ipTable.get(user));
             }
+
+            configureLayout();
         }
     }
 

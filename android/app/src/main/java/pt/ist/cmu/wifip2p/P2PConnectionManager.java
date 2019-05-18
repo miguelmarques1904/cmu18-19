@@ -39,23 +39,35 @@ import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketServer;
 import pt.ist.cmu.helpers.Constants;
 import pt.ist.cmu.models.User;
 
-public class
+public class P2PConnectionManager implements PeerListListener, GroupInfoListener {
 
-P2PConnectionManager implements PeerListListener, GroupInfoListener {
+    private static P2PConnectionManager instance;
 
-    private static HashMap<String, String> ipTable = new HashMap<>();
-    private static SimWifiP2pDeviceList peerList;
-    private static boolean finished;
-    private static Context context;
+    private HashMap<String, String> ipTable = new HashMap<>();
+    private SimWifiP2pDeviceList peerList;
+    private Context context;
 
-    private static SimWifiP2pManager mManager = null;
-    private static SimWifiP2pManager.Channel mChannel = null;
-    private static Messenger mService = null;
-    private static P2PBroadcastReceiver mReceiver;
+    private SimWifiP2pManager mManager = null;
+    private SimWifiP2pManager.Channel mChannel = null;
+    private Messenger mService = null;
+    private P2PBroadcastReceiver mReceiver;
 
-    public static void init(Context context_arg) {
+    private P2PConnectionManager() {
+    }
 
+    // singleton
+    public static P2PConnectionManager getInstance() {
+        if (instance == null) {
+            instance = new P2PConnectionManager();
+        }
+        return instance;
+    }
+
+    public void init(Context context_arg) {
         context = context_arg;
+
+        // initialize the WDSim API
+        SimWifiP2pSocketManager.Init(context);
 
         // register broadcast receiver
         IntentFilter filter = new IntentFilter();
@@ -71,17 +83,18 @@ P2PConnectionManager implements PeerListListener, GroupInfoListener {
         Intent intent = new Intent(context, SimWifiP2pService.class);
         context.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 
-        // initialize the WDSim API
-        SimWifiP2pSocketManager.Init(context);
-
         new IncomingCommTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
-    public static void destroy(Context context) {
-        context.unregisterReceiver(mReceiver);
+    public void destroy() {
+        instance = null;
     }
 
-    private static ServiceConnection mConnection = new ServiceConnection() {
+    public HashMap<String, String> getIpTable() {
+        return ipTable;
+    }
+
+    private ServiceConnection mConnection = new ServiceConnection() {
         // callbacks for service binding, passed to bindService()
 
         @Override
@@ -102,25 +115,20 @@ P2PConnectionManager implements PeerListListener, GroupInfoListener {
     };
 
 
-    public static HashMap getIPs() {
+    public void findIPs() {
         // reset IP table
         ipTable.clear();
 
+        mManager.requestGroupInfo(mChannel, this);
+
         // for each device call SendCatalog
         for (SimWifiP2pDevice device : peerList.getDeviceList()) {
-            new getUserNamesTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, device.getVirtIp());
+            new getUsernamesTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, device.getVirtIp());
         }
-
-        // wait for usernames
-        while (!finished) {
-        }
-
-        finished = false;
-        return ipTable;
     }
 
     // get all usernames and associate to IP addresses
-    public static class getUserNamesTask extends AsyncTask<String, Void, String> {
+    public class getUsernamesTask extends AsyncTask<String, Void, String> {
 
         @Override
         protected String doInBackground(String... params) {
@@ -149,15 +157,14 @@ P2PConnectionManager implements PeerListListener, GroupInfoListener {
 
         @Override
         protected void onPostExecute(String result) {
-            finished = true;
         }
     }
 
-    public static void getImages(String uri, String ip) {
+    public void getImages(String uri, String ip) {
         new getPicturesTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, uri, ip);
     }
 
-    public static class getPicturesTask extends AsyncTask<String, Void, String> {
+    public class getPicturesTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... params) {
 
@@ -168,7 +175,8 @@ P2PConnectionManager implements PeerListListener, GroupInfoListener {
                 SimWifiP2pSocket clientSocket = new SimWifiP2pSocket(params[1], Constants.PORT_NUMBER);
                 clientSocket.getOutputStream().write(message);
 
-                // TODO: receive pictures and save them
+                // receive pictures
+                // save them
 
             } catch (UnknownHostException e) {
                 return "Unknown Host:" + e.getMessage();
@@ -184,12 +192,9 @@ P2PConnectionManager implements PeerListListener, GroupInfoListener {
         }
     }
 
-    public static class IncomingCommTask extends AsyncTask<Void, String, Void> {
+    public class IncomingCommTask extends AsyncTask<Void, String, Void> {
         @Override
         protected Void doInBackground(Void... params) {
-
-            // TODO: implement two operations: return username and return pictures
-
             try {
                 SimWifiP2pSocketServer mSrvSocket = new SimWifiP2pSocketServer(Constants.PORT_NUMBER);
 
@@ -198,9 +203,9 @@ P2PConnectionManager implements PeerListListener, GroupInfoListener {
                         SimWifiP2pSocket sock = mSrvSocket.accept();
                         try {
                             BufferedReader sockIn = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-                            String st = sockIn.readLine();
+                            String str = sockIn.readLine();
 
-                            if (st.equals("USERNAME")) {
+                            if (str.equals("USERNAME")) {
                                 // get username and send it
 
                                 User user = Hawk.get(Constants.CURRENT_USER_KEY);
@@ -208,8 +213,7 @@ P2PConnectionManager implements PeerListListener, GroupInfoListener {
 
                                 sock.getOutputStream().write(username.getBytes(Charset.forName("UTF-8")));
 
-                            } else if (st.equals("CATALOG")) {
-
+                            } else if (str.equals("CATALOG")) {
                                 String catalogURI = sockIn.readLine();
                                 //handle picture request
                             }
@@ -241,22 +245,19 @@ P2PConnectionManager implements PeerListListener, GroupInfoListener {
         mManager.requestGroupInfo(mChannel, this);
     }
 
-
-    // TODO: requestPeers to get this callback
-
-    @Override
-    public void onPeersAvailable(SimWifiP2pDeviceList peers) {
-        // peerList = peers; //update peer list
+    public void updatePeers() {
+        mManager.requestPeers(mChannel, this);
     }
 
-    // TODO: requestGroupInfo to get this callback
+    // requestPeers callback
+    @Override
+    public void onPeersAvailable(SimWifiP2pDeviceList peers) {
+        peerList = peers;
+    }
 
+    // requestGroupInfo callback
     @Override
     public void onGroupInfoAvailable(SimWifiP2pDeviceList devices, SimWifiP2pInfo groupInfo) {
-        //possible fix for unknown host
-        /*SimWifiP2pSocketManager.getSockManager().handleActionDeviceInfoChanged(devices);
-        SimWifiP2pSocketManager.getSockManager().handleActionGroupMembershipChanged(groupInfo);*/
-
-        peerList = devices; //update peer list
+        peerList = devices;
     }
 }

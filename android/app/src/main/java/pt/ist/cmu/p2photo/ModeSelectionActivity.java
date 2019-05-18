@@ -8,6 +8,7 @@ import android.view.View;
 import com.orhanobut.hawk.Hawk;
 
 import pt.ist.cmu.helpers.Constants;
+import pt.ist.cmu.wifip2p.P2PConnectionManager;
 
 public class ModeSelectionActivity extends AppCompatActivity {
 
@@ -19,6 +20,9 @@ public class ModeSelectionActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_modeselection);
         intent = new Intent(ModeSelectionActivity.this, MainActivity.class);
+
+        // reset wi-fi direct
+        P2PConnectionManager.getInstance().destroy();
 
         // initialize hawk
         Hawk.init(getApplicationContext()).build();
