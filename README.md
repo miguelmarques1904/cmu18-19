@@ -1,6 +1,7 @@
 # Project of Mobile and Ubiquitous Computing, IST 2018/2019
 
-P2Photo. Made for Android 5.0+
+P2Photo. Made for Android 5.0+. Secure image sharing solution working in both a client-server architecture as well as P2P.
+Full project statement is inside the docs/ folder. Leverages Django, REST, Python and Java.
 
 ## App
 
